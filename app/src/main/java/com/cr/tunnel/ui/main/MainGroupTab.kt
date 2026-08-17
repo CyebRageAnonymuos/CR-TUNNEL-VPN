@@ -41,7 +41,7 @@ fun GroupTabBar(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
-        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.35f),
         contentColor = MaterialTheme.colorScheme.onSurface,
         edgePadding = 16.dp,
         minTabWidth = 56.dp,

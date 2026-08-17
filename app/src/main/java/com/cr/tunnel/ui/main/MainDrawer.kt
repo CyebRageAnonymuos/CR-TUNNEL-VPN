@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -37,8 +38,8 @@ import androidx.compose.ui.unit.sp
 import com.cr.tunnel.ui.compose.AppDivider
 import com.cr.tunnel.ui.compose.LocalDarkTheme
 import com.cr.tunnel.ui.compose.colorConfigType
+import com.cr.tunnel.ui.compose.drawGlassHighlights
 import com.cr.tunnel.R
-import com.cr.tunnel.ui.compose.AppDivider
 import com.cr.tunnel.ui.compose.verticalScrollbar
 
 enum class MainDestination(@DrawableRes val iconRes: Int, @StringRes val labelRes: Int) {
@@ -95,6 +96,14 @@ fun MainDrawerContent(drawerState: DrawerState, onNavigate: (MainDestination) ->
                                 listOf(Color(0x3300E5FF), Color(0x33A855F7))
                             )
                         )
+                        .drawBehind {
+                            drawGlassHighlights(
+                                cornerRadius = 0.dp,
+                                topAlpha = if (LocalDarkTheme.current) 0.10f else 0.25f,
+                                bottomAlpha = 0.03f,
+                                edgeAlpha = 0.15f
+                            )
+                        }
                         .padding(16.dp),
                     contentAlignment = Alignment.Center
                 ) {

@@ -41,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -62,6 +63,8 @@ import com.cr.tunnel.handler.MmkvManager
 import com.cr.tunnel.ui.compose.ItemDivider
 import com.cr.tunnel.ui.compose.ReorderableGridItem
 import com.cr.tunnel.ui.compose.ReorderableListItem
+import com.cr.tunnel.ui.compose.LocalDarkTheme
+import com.cr.tunnel.ui.compose.drawGlassHighlights
 import com.cr.tunnel.ui.compose.colorConfigType
 import com.cr.tunnel.ui.compose.colorPing
 import com.cr.tunnel.ui.compose.colorPingRed
@@ -343,6 +346,7 @@ fun ServerListItem(
         targetValue = if (pressed) 0.97f else 1f,
         label = "pressScale"
     )
+    val isDarkTheme = LocalDarkTheme.current
 
     Row(
         modifier = modifier
@@ -351,6 +355,14 @@ fun ServerListItem(
             .scale(pressScale)
             .clip(RoundedCornerShape(20.dp))
             .background(glassBg)
+            .drawBehind {
+                drawGlassHighlights(
+                    cornerRadius = 20.dp,
+                    topAlpha = if (isDarkTheme) 0.07f else 0.22f,
+                    bottomAlpha = 0.03f,
+                    edgeAlpha = if (isSelected) 0.5f else 0.2f
+                )
+            }
             .border(1.dp, borderBrush, RoundedCornerShape(20.dp))
             .pointerInput(Unit) {
                 detectTapGestures(
