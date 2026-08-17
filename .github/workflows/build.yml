@@ -26,25 +26,24 @@ jobs:
 
       - name: Download libv2ray.aar
         run: |
-          mkdir -p CR-TUNNEL/app/libs
-          curl -sL -o CR-TUNNEL/app/libs/libv2ray.aar \
+          mkdir -p app/libs
+          curl -sL -o app/libs/libv2ray.aar \
             "https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.7.31/libv2ray.aar"
 
       - name: Grant execute permission for gradlew
-        run: chmod +x CR-TUNNEL/gradlew
+        run: chmod +x gradlew
 
       - name: Build Debug APKs
-        working-directory: CR-TUNNEL
         run: ./gradlew :app:assemblePlaystoreDebug --no-daemon --stacktrace
 
       - name: Upload APKs as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: crtunnel-apks
-          path: CR-TUNNEL/app/build/outputs/apk/playstore/debug/*.apk
+          path: app/build/outputs/apk/playstore/debug/*.apk
 
       - name: Create Release and upload APKs
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: CR-TUNNEL/app/build/outputs/apk/playstore/debug/*.apk
+          files: app/build/outputs/apk/playstore/debug/*.apk

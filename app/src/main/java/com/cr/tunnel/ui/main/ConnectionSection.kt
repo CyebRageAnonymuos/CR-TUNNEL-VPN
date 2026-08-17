@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cr.tunnel.R
 import com.cr.tunnel.ui.compose.colorPing
+import com.cr.tunnel.ui.compose.drawGlassHighlights
 
 private val NeonCyan = Color(0xFF00E5FF)
 private val NeonPurple = Color(0xFFA855F7)
@@ -266,8 +267,30 @@ private fun ConnectionCircle(
             )
             .clip(CircleShape)
             .background(
-                if (isDarkTheme) Color(0xFF121A38) else Color(0xFFF0F6FC)
+                if (isDarkTheme) {
+                    Brush.linearGradient(
+                        listOf(
+                            Color(0xFF2A3A6E).copy(alpha = 0.45f),
+                            Color(0xFF101830).copy(alpha = 0.85f)
+                        )
+                    )
+                } else {
+                    Brush.linearGradient(
+                        listOf(
+                            Color.White.copy(alpha = 0.85f),
+                            Color(0xFFDFF2FF).copy(alpha = 0.75f)
+                        )
+                    )
+                }
             )
+            .drawBehind {
+                drawGlassHighlights(
+                    cornerRadius = 105.dp,
+                    topAlpha = if (isDarkTheme) 0.08f else 0.30f,
+                    bottomAlpha = if (isDarkTheme) 0.03f else 0.08f,
+                    edgeAlpha = if (isRunning) 0.55f else 0.30f
+                )
+            }
             .border(
                 1.dp,
                 Brush.linearGradient(
