@@ -46,6 +46,17 @@ android {
                 "proguard-rules.pro"
             )
         }
+        debug {
+            val keystoreFile = rootProject.file("app/signing/crtunnel-release.keystore")
+            if (keystoreFile.exists()) {
+                signingConfig = signingConfigs.create("stable") {
+                    storeFile = keystoreFile
+                    storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "crtunnel123"
+                    keyAlias = System.getenv("KEY_ALIAS") ?: "crtunnel"
+                    keyPassword = System.getenv("KEY_PASSWORD") ?: "crtunnel123"
+                }
+            }
+        }
     }
 
     flavorDimensions.add("distribution")
