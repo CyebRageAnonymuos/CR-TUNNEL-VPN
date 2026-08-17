@@ -74,11 +74,12 @@ private val drawerItems = primaryDrawerItems + listOf(
 @Composable
 fun MainDrawerContent(drawerState: DrawerState, onNavigate: (MainDestination) -> Unit) {
     val drawerScrollState = rememberScrollState()
+    val isDarkTheme = LocalDarkTheme.current
 
     ModalDrawerSheet(
         drawerState = drawerState,
         modifier = Modifier.fillMaxWidth(0.75f),
-        drawerContainerColor = if (LocalDarkTheme.current) Color(0xE60F1530) else Color(0xE6FFFFFF)
+        drawerContainerColor = if (isDarkTheme) Color(0xE60F1530) else Color(0xE6FFFFFF)
     ) {
         Column(
             modifier = Modifier.verticalScroll(drawerScrollState).verticalScrollbar(drawerScrollState)
@@ -99,7 +100,7 @@ fun MainDrawerContent(drawerState: DrawerState, onNavigate: (MainDestination) ->
                         .drawBehind {
                             drawGlassHighlights(
                                 cornerRadius = 0.dp,
-                                topAlpha = if (LocalDarkTheme.current) 0.10f else 0.25f,
+                                topAlpha = if (isDarkTheme) 0.10f else 0.25f,
                                 bottomAlpha = 0.03f,
                                 edgeAlpha = 0.15f
                             )
