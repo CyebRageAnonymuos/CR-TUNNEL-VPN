@@ -267,7 +267,7 @@ fun GlassButton(
                     cornerRadius = cornerRadius,
                     topAlpha = if (darkTheme) 0.08f else 0.25f,
                     bottomAlpha = 0.03f,
-                    edgeAlpha = if (glow) edgeAlpha * glowPulse else edgeAlpha
+                    edgeAlpha = 0.35f
                 )
             }
             .border(
