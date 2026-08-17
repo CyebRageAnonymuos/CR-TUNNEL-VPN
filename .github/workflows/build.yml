@@ -1,0 +1,50 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Download libv2ray.aar
+        run: |
+          mkdir -p CR-TUNNEL/app/libs
+          curl -sL -o CR-TUNNEL/app/libs/libv2ray.aar \
+            "https://github.com/2dust/AndroidLibXrayLite/releases/download/v26.7.31/libv2ray.aar"
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x CR-TUNNEL/gradlew
+
+      - name: Build Debug APKs
+        working-directory: CR-TUNNEL
+        run: ./gradlew :app:assemblePlaystoreDebug --no-daemon --stacktrace
+
+      - name: Upload APKs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: crtunnel-apks
+          path: CR-TUNNEL/app/build/outputs/apk/playstore/debug/*.apk
+
+      - name: Create Release and upload APKs
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: CR-TUNNEL/app/build/outputs/apk/playstore/debug/*.apk
