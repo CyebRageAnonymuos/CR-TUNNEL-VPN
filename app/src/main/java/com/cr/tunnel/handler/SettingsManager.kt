@@ -411,7 +411,28 @@ object SettingsManager {
      * @return True if HEV TUN is used, false otherwise.
      */
     fun isUsingHevTun(): Boolean {
-        return MmkvManager.decodeSettingsBool(AppConfig.PREF_USE_HEV_TUNNEL, true)
+        return MmkvManager.decodeSettingsBool(AppConfig.PREF_USE_HEV_TUNNEL, false) &&
+            isHevTunLibraryAvailable()
+    }
+
+    @Volatile
+    private var hevTunAvailable: Boolean? = null
+
+    /**
+     * Returns true only when the hev-socks5-tunnel native library is bundled with the APK.
+     * Prevents UnsatisfiedLinkError crashes when the .so file is missing.
+     */
+    private fun isHevTunLibraryAvailable(): Boolean {
+        hevTunAvailable?.let { return it }
+        val result = try {
+            System.loadLibrary("hev-socks5-tunnel")
+            true
+        } catch (e: Throwable) {
+            LogUtil.w(AppConfig.TAG, "hev-socks5-tunnel library unavailable, falling back to Xray TUN: ${e.message}")
+            false
+        }
+        hevTunAvailable = result
+        return result
     }
 
     /**
