@@ -418,10 +418,6 @@ object SettingsManager {
     @Volatile
     private var hevTunAvailable: Boolean? = null
 
-    /**
-     * Returns true only when the hev-socks5-tunnel native library is bundled with the APK.
-     * Prevents UnsatisfiedLinkError crashes when the .so file is missing.
-     */
     private fun isHevTunLibraryAvailable(): Boolean {
         hevTunAvailable?.let { return it }
         val result = try {

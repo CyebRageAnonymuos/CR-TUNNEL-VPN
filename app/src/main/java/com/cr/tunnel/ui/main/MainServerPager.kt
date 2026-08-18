@@ -41,7 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -64,7 +64,6 @@ import com.cr.tunnel.ui.compose.ItemDivider
 import com.cr.tunnel.ui.compose.ReorderableGridItem
 import com.cr.tunnel.ui.compose.ReorderableListItem
 import com.cr.tunnel.ui.compose.LocalDarkTheme
-import com.cr.tunnel.ui.compose.drawGlassHighlights
 import com.cr.tunnel.ui.compose.colorConfigType
 import com.cr.tunnel.ui.compose.colorPing
 import com.cr.tunnel.ui.compose.colorPingRed
@@ -355,13 +354,23 @@ fun ServerListItem(
             .scale(pressScale)
             .clip(RoundedCornerShape(20.dp))
             .background(glassBg)
-            .drawBehind {
-                drawGlassHighlights(
-                    cornerRadius = 20.dp,
-                    topAlpha = if (isDarkTheme) 0.07f else 0.22f,
-                    bottomAlpha = 0.03f,
-                    edgeAlpha = if (isSelected) 0.5f else 0.2f
+            .drawWithCache {
+                val topBrush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = if (isDarkTheme) 0.07f else 0.22f),
+                        Color.Transparent
+                    ),
+                    startY = 0f,
+                    endY = size.height * 0.45f
                 )
+                onDrawBehind {
+                    if (isSelected) {
+                        drawRoundRect(
+                            brush = topBrush,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(20.dp.toPx(), 20.dp.toPx())
+                        )
+                    }
+                }
             }
             .border(1.dp, borderBrush, RoundedCornerShape(20.dp))
             .pointerInput(Unit) {

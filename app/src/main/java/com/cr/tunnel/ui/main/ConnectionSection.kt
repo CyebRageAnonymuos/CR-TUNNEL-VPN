@@ -31,7 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cr.tunnel.R
 import com.cr.tunnel.ui.compose.colorPing
-import com.cr.tunnel.ui.compose.drawGlassHighlights
+import com.cr.tunnel.ui.compose.glassCyan
 
 private val NeonCyan = Color(0xFF00E5FF)
 private val NeonPurple = Color(0xFFA855F7)
@@ -206,52 +206,57 @@ private fun ConnectionCircle(
     Box(
         modifier = Modifier
             .size(210.dp)
-            .drawBehind {
+            .drawWithCache {
                 val stroke = 10.dp.toPx()
                 val arcInset = stroke / 2
                 val arcSize = Size(size.width - stroke, size.height - stroke)
                 val arcTopLeft = Offset(arcInset, arcInset)
-                rotate(degrees = rotation, pivot = center) {
-                    drawArc(
-                        brush = Brush.sweepGradient(
-                            colors = ringColors,
-                            center = center
-                        ),
-                        startAngle = 0f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        topLeft = arcTopLeft,
-                        size = arcSize,
-                        style = Stroke(width = stroke, cap = StrokeCap.Round)
-                    )
-                }
-                rotate(degrees = counterRotation, pivot = center) {
-                    drawArc(
-                        brush = Brush.sweepGradient(
-                            colors = listOf(Color.Transparent, glowColor.copy(alpha = 0.35f), Color.Transparent),
-                            center = center
-                        ),
-                        startAngle = 0f,
-                        sweepAngle = 120f,
-                        useCenter = false,
-                        topLeft = arcTopLeft,
-                        size = arcSize,
-                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                }
-                val pulseSize = size.width + (36.dp.toPx() * pulse)
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            glowColor.copy(alpha = if (isRunning) 0.16f * pulse else 0.05f * pulse),
-                            Color.Transparent
-                        ),
-                        center = center,
-                        radius = pulseSize
-                    ),
-                    radius = pulseSize,
-                    center = center
+                val centerOffset = Offset(size.width / 2f, size.height / 2f)
+                val ringBrush = Brush.sweepGradient(
+                    colors = ringColors,
+                    center = centerOffset
                 )
+                val glowBrush = Brush.sweepGradient(
+                    colors = listOf(Color.Transparent, glowColor.copy(alpha = 0.35f), Color.Transparent),
+                    center = centerOffset
+                )
+                val pulseBrush = Brush.radialGradient(
+                    colors = listOf(
+                        glowColor.copy(alpha = if (isRunning) 0.16f else 0.05f),
+                        Color.Transparent
+                    ),
+                    center = centerOffset
+                )
+                onDrawBehind {
+                    rotate(degrees = rotation, pivot = centerOffset) {
+                        drawArc(
+                            brush = ringBrush,
+                            startAngle = 0f,
+                            sweepAngle = 360f,
+                            useCenter = false,
+                            topLeft = arcTopLeft,
+                            size = arcSize,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                    }
+                    rotate(degrees = counterRotation, pivot = centerOffset) {
+                        drawArc(
+                            brush = glowBrush,
+                            startAngle = 0f,
+                            sweepAngle = 120f,
+                            useCenter = false,
+                            topLeft = arcTopLeft,
+                            size = arcSize,
+                            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                        )
+                    }
+                    val pulseSize = size.width + (36.dp.toPx() * pulse)
+                    drawCircle(
+                        brush = pulseBrush,
+                        radius = pulseSize,
+                        center = centerOffset
+                    )
+                }
             }
             .scale(breathe)
             .padding(26.dp)
@@ -283,13 +288,33 @@ private fun ConnectionCircle(
                     )
                 }
             )
-            .drawBehind {
-                drawGlassHighlights(
-                    cornerRadius = 105.dp,
-                    topAlpha = if (isDarkTheme) 0.08f else 0.30f,
-                    bottomAlpha = if (isDarkTheme) 0.03f else 0.08f,
-                    edgeAlpha = if (isRunning) 0.55f else 0.30f
+            .drawWithCache {
+                val highlightBrush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = if (isDarkTheme) 0.08f else 0.30f),
+                        Color.Transparent
+                    ),
+                    startY = 0f,
+                    endY = size.height * 0.45f
                 )
+                val edgeBrush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = if (isRunning) 0.55f else 0.30f),
+                        glassCyan.copy(alpha = 0.35f),
+                        Color.White.copy(alpha = 0.15f)
+                    )
+                )
+                onDrawBehind {
+                    drawRoundRect(
+                        brush = highlightBrush,
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(105.dp.toPx(), 105.dp.toPx())
+                    )
+                    drawRoundRect(
+                        brush = edgeBrush,
+                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(105.dp.toPx(), 105.dp.toPx()),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.dp.toPx())
+                    )
+                }
             }
             .border(
                 1.dp,
