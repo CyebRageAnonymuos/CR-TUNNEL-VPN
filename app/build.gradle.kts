@@ -38,6 +38,18 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("stable") {
+            val keystoreFile = rootProject.file("app/signing/crtunnel-release.keystore")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "crtunnel123"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "crtunnel"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "crtunnel123"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -45,17 +57,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("stable")
         }
         debug {
-            val keystoreFile = rootProject.file("app/signing/crtunnel-release.keystore")
-            if (keystoreFile.exists()) {
-                signingConfig = signingConfigs.create("stable") {
-                    storeFile = keystoreFile
-                    storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "crtunnel123"
-                    keyAlias = System.getenv("KEY_ALIAS") ?: "crtunnel"
-                    keyPassword = System.getenv("KEY_PASSWORD") ?: "crtunnel123"
-                }
-            }
+            signingConfig = signingConfigs.getByName("stable")
         }
     }
 

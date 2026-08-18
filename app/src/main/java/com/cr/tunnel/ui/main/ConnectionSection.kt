@@ -1,9 +1,7 @@
 package com.cr.tunnel.ui.main
 
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
@@ -32,14 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -157,45 +153,6 @@ private fun ConnectionCircle(
     isDarkTheme: Boolean,
     onClick: () -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "circle")
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 12000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "rotation"
-    )
-    val counterRotation by infiniteTransition.animateFloat(
-        initialValue = 360f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "counterRotation"
-    )
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 0.35f,
-        targetValue = 0.9f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1600),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "pulse"
-    )
-    val breathe by infiniteTransition.animateFloat(
-        initialValue = 0.96f,
-        targetValue = 1.04f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 2400),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "breathe"
-    )
-    val ringProgress by animateFloatAsState(if (isRunning) 1f else 0f, label = "ring")
-
     val ringColors = if (isRunning) {
         listOf(colorPing, NeonCyan, colorPing)
     } else {
@@ -228,37 +185,31 @@ private fun ConnectionCircle(
                     center = centerOffset
                 )
                 onDrawBehind {
-                    rotate(degrees = rotation, pivot = centerOffset) {
-                        drawArc(
-                            brush = ringBrush,
-                            startAngle = 0f,
-                            sweepAngle = 360f,
-                            useCenter = false,
-                            topLeft = arcTopLeft,
-                            size = arcSize,
-                            style = Stroke(width = stroke, cap = StrokeCap.Round)
-                        )
-                    }
-                    rotate(degrees = counterRotation, pivot = centerOffset) {
-                        drawArc(
-                            brush = glowBrush,
-                            startAngle = 0f,
-                            sweepAngle = 120f,
-                            useCenter = false,
-                            topLeft = arcTopLeft,
-                            size = arcSize,
-                            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-                        )
-                    }
-                    val pulseSize = size.width + (36.dp.toPx() * pulse)
+                    drawArc(
+                        brush = ringBrush,
+                        startAngle = 0f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        topLeft = arcTopLeft,
+                        size = arcSize,
+                        style = Stroke(width = stroke, cap = StrokeCap.Round)
+                    )
+                    drawArc(
+                        brush = glowBrush,
+                        startAngle = 0f,
+                        sweepAngle = 120f,
+                        useCenter = false,
+                        topLeft = arcTopLeft,
+                        size = arcSize,
+                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+                    )
                     drawCircle(
                         brush = pulseBrush,
-                        radius = pulseSize,
+                        radius = size.width + 36.dp.toPx(),
                         center = centerOffset
                     )
                 }
             }
-            .scale(breathe)
             .padding(26.dp)
             .clip(CircleShape)
             .background(

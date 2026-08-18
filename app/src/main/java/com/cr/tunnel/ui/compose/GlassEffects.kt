@@ -41,17 +41,6 @@ fun GlassBackground(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val transition = rememberInfiniteTransition(label = "aurora")
-    val drift by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 24000, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "drift"
-    )
-
     val bgColors = if (darkTheme) {
         listOf(Color(0xFF05070F), Color(0xFF0A0E27), Color(0xFF0F1530))
     } else {
@@ -79,12 +68,12 @@ fun GlassBackground(
                     drawCircle(
                         brush = blob1,
                         radius = size.maxDimension * 0.5f,
-                        center = Offset(size.width * (0.25f + 0.15f * drift), size.height * 0.2f)
+                        center = Offset(size.width * 0.25f, size.height * 0.2f)
                     )
                     drawCircle(
                         brush = blob2,
                         radius = size.maxDimension * 0.55f,
-                        center = Offset(size.width * (0.8f - 0.1f * drift), size.height * 0.55f)
+                        center = Offset(size.width * 0.8f, size.height * 0.55f)
                     )
                 }
             }
