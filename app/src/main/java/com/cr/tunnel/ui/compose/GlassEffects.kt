@@ -1,11 +1,5 @@
 package com.cr.tunnel.ui.compose
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,15 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -41,7 +32,7 @@ fun GlassBackground(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
-    val bgColors = if (darkTheme) {
+    val colors = if (darkTheme) {
         listOf(Color(0xFF05070F), Color(0xFF0A0E27), Color(0xFF0F1530))
     } else {
         listOf(Color(0xFFE9F6FF), Color(0xFFF5FAFC), Color(0xFFEFF3FF))
@@ -50,33 +41,7 @@ fun GlassBackground(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(colors = bgColors))
-            .drawWithCache {
-                val blob1 = Brush.radialGradient(
-                    colors = listOf(
-                        glassCyan.copy(alpha = if (darkTheme) 0.08f else 0.05f),
-                        Color.Transparent
-                    )
-                )
-                val blob2 = Brush.radialGradient(
-                    colors = listOf(
-                        glassPurple.copy(alpha = if (darkTheme) 0.10f else 0.06f),
-                        Color.Transparent
-                    )
-                )
-                onDrawBehind {
-                    drawCircle(
-                        brush = blob1,
-                        radius = size.maxDimension * 0.5f,
-                        center = Offset(size.width * 0.25f, size.height * 0.2f)
-                    )
-                    drawCircle(
-                        brush = blob2,
-                        radius = size.maxDimension * 0.55f,
-                        center = Offset(size.width * 0.8f, size.height * 0.55f)
-                    )
-                }
-            }
+            .background(Brush.verticalGradient(colors = colors))
     ) {
         content()
     }
@@ -146,17 +111,6 @@ fun GlassButton(
     onClick: () -> Unit = {},
     content: @Composable BoxScope.() -> Unit
 ) {
-    val transition = rememberInfiniteTransition(label = "glassBtn")
-    val glowPulse by transition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "glowPulse"
-    )
-
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(cornerRadius))
@@ -198,8 +152,8 @@ fun GlassButton(
                 if (glow) {
                     Brush.linearGradient(
                         listOf(
-                            glassCyan.copy(alpha = 0.9f * glowPulse),
-                            glassPurple.copy(alpha = 0.9f * glowPulse)
+                            glassCyan.copy(alpha = 0.9f),
+                            glassPurple.copy(alpha = 0.9f)
                         )
                     )
                 } else {
@@ -219,19 +173,8 @@ fun GlassButton(
 fun GlassOrbit(
     darkTheme: Boolean,
     modifier: Modifier = Modifier,
-    color: Color = glassCyan,
-    durationMillis: Int = 14000
+    color: Color = glassCyan
 ) {
-    val transition = rememberInfiniteTransition(label = "orbit")
-    val angle by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = durationMillis, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "angle"
-    )
     Box(
         modifier = modifier.drawWithCache {
             val orbitBrush = Brush.linearGradient(
@@ -242,16 +185,14 @@ fun GlassOrbit(
                 )
             )
             onDrawBehind {
-                rotate(degrees = angle) {
-                    drawCircle(
-                        brush = orbitBrush,
-                        radius = size.minDimension / 2,
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(
-                            width = 1.5.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 14f))
-                        )
+                drawCircle(
+                    brush = orbitBrush,
+                    radius = size.minDimension / 2,
+                    style = androidx.compose.ui.graphics.drawscope.Stroke(
+                        width = 1.5.dp.toPx(),
+                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 14f))
                     )
-                }
+                )
             }
         }
     )

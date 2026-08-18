@@ -38,18 +38,18 @@ jobs:
           mkdir -p app/signing
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/signing/crtunnel-release.keystore
 
-      - name: Build Debug APKs
+      - name: Build Release APKs
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew :app:assemblePlaystoreDebug --no-daemon --stacktrace
+        run: ./gradlew :app:assemblePlaystoreRelease --no-daemon --stacktrace
 
       - name: Upload APKs as artifacts
         uses: actions/upload-artifact@v4
         with:
           name: crtunnel-apks
-          path: app/build/outputs/apk/playstore/debug/*.apk
+          path: app/build/outputs/apk/playstore/release/*.apk
           if-no-files-found: error
 
       - name: Determine release tag
@@ -89,7 +89,7 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/releases/tags/$RELEASE_TAG" | \
             python3 -c "import json,sys; print(json.load(sys.stdin).get('id',''))")
           echo "release id: $RELEASE_ID"
-          for apk in app/build/outputs/apk/playstore/debug/*.apk; do
+          for apk in app/build/outputs/apk/playstore/release/*.apk; do
             echo "uploading: $apk"
             curl -s -X POST \
               -H "Authorization: token $GITHUB_TOKEN" \

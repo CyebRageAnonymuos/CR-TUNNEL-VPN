@@ -1,10 +1,5 @@
 package com.cr.tunnel.ui.main
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -91,16 +85,6 @@ fun ConnectionSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        val optimizeGlow by rememberInfiniteTransition(label = "optimizeGlow").animateFloat(
-            initialValue = 0.3f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 900),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "optimizeGlow"
-        )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,8 +95,8 @@ fun ConnectionSection(
                     1.dp,
                     if (isAutoOptimizing) Brush.linearGradient(
                         listOf(
-                            NeonCyan.copy(alpha = optimizeGlow),
-                            NeonPurple.copy(alpha = optimizeGlow)
+                            NeonCyan,
+                            NeonPurple
                         )
                     )
                     else Brush.linearGradient(listOf(Color(0x3300E5FF), Color(0x33A855F7))),
@@ -177,13 +161,6 @@ private fun ConnectionCircle(
                     colors = listOf(Color.Transparent, glowColor.copy(alpha = 0.35f), Color.Transparent),
                     center = centerOffset
                 )
-                val pulseBrush = Brush.radialGradient(
-                    colors = listOf(
-                        glowColor.copy(alpha = if (isRunning) 0.16f else 0.05f),
-                        Color.Transparent
-                    ),
-                    center = centerOffset
-                )
                 onDrawBehind {
                     drawArc(
                         brush = ringBrush,
@@ -203,24 +180,9 @@ private fun ConnectionCircle(
                         size = arcSize,
                         style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
                     )
-                    drawCircle(
-                        brush = pulseBrush,
-                        radius = size.width + 36.dp.toPx(),
-                        center = centerOffset
-                    )
                 }
             }
             .padding(26.dp)
-            .clip(CircleShape)
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        glowColor.copy(alpha = if (isRunning) 0.22f else 0.08f),
-                        Color.Transparent
-                    ),
-                    radius = 800f
-                )
-            )
             .clip(CircleShape)
             .background(
                 if (isDarkTheme) {
