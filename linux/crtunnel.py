@@ -25,10 +25,27 @@ except Exception:
     sys.exit(1)
 
 APP_NAME = "CR Tunnel"
-CONFIG_DIR = os.path.expanduser("~/.config/crtunnel")
-DATA_DIR = os.path.expanduser("~/.local/share/crtunnel")
+
+def user_home():
+    if os.environ.get("SUDO_USER"):
+        return os.path.expanduser("~" + os.environ["SUDO_USER"])
+    return os.path.expanduser("~")
+
+def find_xray_bin():
+    for cand in (
+        os.path.join(DATA_DIR, "xray"),
+        os.path.expanduser("~/.local/share/crtunnel/xray"),
+        "/usr/local/share/crtunnel/xray"
+    ):
+        if os.path.exists(cand):
+            return cand
+    return os.path.join(DATA_DIR, "xray")
+
+HOME_DIR = user_home()
+CONFIG_DIR = os.path.join(HOME_DIR, ".config/crtunnel")
+DATA_DIR = os.path.join(HOME_DIR, ".local/share/crtunnel")
 CONFIG_FILE = os.path.join(CONFIG_DIR, "config.json")
-XRAY_BIN = os.path.join(DATA_DIR, "xray")
+XRAY_BIN = find_xray_bin()
 SOCKS_PORT = 10808
 HTTP_PORT = 10809
 
@@ -418,6 +435,33 @@ def tcp_ping(host, port, timeout=5.0):
     return best
 
 
+def test_proxy_socks(proxy_host="127.0.0.1", proxy_port=SOCKS_PORT,
+                     target_host="1.1.1.1", target_port=443, timeout=8.0):
+    import struct
+    try:
+        sock = socket.create_connection((proxy_host, proxy_port), timeout=timeout)
+        sock.sendall(b"\x05\x01\x00")
+        resp = sock.recv(2)
+        if len(resp) != 2 or resp[0] != 5 or resp[1] != 0:
+            sock.close()
+            return False
+        ip = socket.gethostbyname(target_host)
+        req = b"\x05\x01\x00\x01" + socket.inet_aton(ip) + struct.pack(">H", target_port)
+        sock.sendall(req)
+        resp = sock.recv(10)
+        if len(resp) < 2 or resp[1] != 0:
+            sock.close()
+            return False
+        sock.close()
+        return True
+    except Exception:
+        try:
+            sock.close()
+        except Exception:
+            pass
+        return False
+
+
 def server_guid(srv):
     return json.dumps(srv["outbound"], sort_keys=True)
 
@@ -466,10 +510,13 @@ class TunnelManager:
         cfg = self.build_config(server, mode, dns, mux)
         with open(self.config_path, "w", encoding="utf-8") as f:
             json.dump(cfg, f, ensure_ascii=False, indent=2)
+        log_path = os.path.join(DATA_DIR, "xray.log")
+        with open(log_path, "a", encoding="utf-8") as lf:
+            lf.write("\n=== {} ===\n".format(time.strftime("%Y-%m-%d %H:%M:%S")))
         self.process = subprocess.Popen(
             [XRAY_BIN, "run", "-c", self.config_path],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
+            stdout=open(log_path, "a"),
+            stderr=subprocess.STDOUT
         )
         self.status = "running"
 
@@ -568,6 +615,7 @@ class App(Gtk.Window):
         self.selected = None
         self.testing = False
         self.auto_optimizing = False
+        self._sync_servers()
         self._build_ui()
         self._apply_style()
         self._populate_groups()
@@ -873,7 +921,19 @@ class App(Gtk.Window):
         except Exception as e:
             GLib.idle_add(self._toast, "Connect failed: {}".format(e))
             return
-        GLib.idle_add(self._set_status, True, server.get("remark", ""))
+        time.sleep(2.0)
+        if self.tunnel.process and self.tunnel.process.poll() is not None:
+            self.tunnel.stop()
+            GLib.idle_add(self._set_status, False, "Disconnected")
+            GLib.idle_add(self._toast, "Xray failed to start. Check logs.")
+            return
+        if test_proxy_socks():
+            GLib.idle_add(self._set_status, True, server.get("remark", ""))
+            GLib.idle_add(self._toast, "Connected: {}".format(server.get("remark", "")))
+        else:
+            self.tunnel.stop()
+            GLib.idle_add(self._set_status, False, "Disconnected")
+            GLib.idle_add(self._toast, "Connection test failed - server unreachable")
 
     def _set_status(self, running, text):
         self.status_label.set_text("Connected" if running else "Disconnected")
@@ -1245,9 +1305,25 @@ class App(Gtk.Window):
         save_config(self.config)
         self._servers_changed()
 
-    def _servers_changed(self):
+    def _sync_servers(self):
+        changed = False
+        for srv in self.servers:
+            if not srv.get("guid"):
+                srv["guid"] = server_guid(srv)
+                changed = True
         groups = self.config.setdefault("groups", {})
         groups.setdefault("Default", [])
+        for srv in self.servers:
+            g = srv.get("guid", server_guid(srv))
+            if g not in groups["Default"]:
+                groups["Default"].append(g)
+                changed = True
+        if changed:
+            self.config["servers"] = self.servers
+            save_config(self.config)
+
+    def _servers_changed(self):
+        self._sync_servers()
         self._populate_groups()
         self.circle.queue_draw()
 
