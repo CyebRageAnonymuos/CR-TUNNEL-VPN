@@ -357,19 +357,22 @@ def parse_link(raw_link):
     link = raw_link.strip()
     if not link:
         return None
+    srv = None
     if link.startswith("vmess://"):
-        return parse_vmess(urllib.parse.urlparse(link), "")
-    if link.startswith("vless://"):
-        return parse_vless(urllib.parse.urlparse(link), "")
-    if link.startswith("trojan://"):
-        return parse_trojan(urllib.parse.urlparse(link), "")
-    if link.startswith("ss://"):
-        return parse_ss(urllib.parse.urlparse(link), "")
-    if link.startswith("socks://"):
-        return parse_socks(urllib.parse.urlparse(link), "")
-    if link.startswith("hy2://"):
-        return parse_hy2(urllib.parse.urlparse(link), "")
-    return None
+        srv = parse_vmess(urllib.parse.urlparse(link), "")
+    elif link.startswith("vless://"):
+        srv = parse_vless(urllib.parse.urlparse(link), "")
+    elif link.startswith("trojan://"):
+        srv = parse_trojan(urllib.parse.urlparse(link), "")
+    elif link.startswith("ss://"):
+        srv = parse_ss(urllib.parse.urlparse(link), "")
+    elif link.startswith("socks://"):
+        srv = parse_socks(urllib.parse.urlparse(link), "")
+    elif link.startswith("hy2://"):
+        srv = parse_hy2(urllib.parse.urlparse(link), "")
+    if srv:
+        srv["raw"] = link
+    return srv
 
 
 def fetch_subscription(url):
@@ -396,14 +399,23 @@ def fetch_subscription(url):
     return text.splitlines()
 
 
-def tcp_ping(host, port, timeout=4.0):
-    start = time.time()
+def tcp_ping(host, port, timeout=5.0):
     try:
-        sock = socket.create_connection((host, port), timeout=timeout)
-        sock.close()
-        return (time.time() - start) * 1000
+        ip = socket.gethostbyname(host)
     except Exception:
         return None
+    best = None
+    for _ in range(3):
+        start = time.time()
+        try:
+            sock = socket.create_connection((ip, int(port)), timeout=timeout)
+            sock.close()
+            ms = (time.time() - start) * 1000
+            if best is None or ms < best:
+                best = ms
+        except Exception:
+            pass
+    return best
 
 
 def server_guid(srv):
@@ -780,7 +792,7 @@ class App(Gtk.Window):
         scroller.add(listbox)
         box.pack_start(scroller, True, True, 0)
         box.gname = gname
-        box.guids = guids
+        box.guids = guids if guids else [s.get("guid", server_guid(s)) for s in self.servers]
         box.listbox = listbox
         box.search = search
         box.filter_text = ""
@@ -801,7 +813,9 @@ class App(Gtk.Window):
             filter_txt = page.filter_text.lower()
             if filter_txt and filter_txt not in (srv.get("remark", "") or "").lower():
                 continue
-            page.listbox.add(ServerRow(srv, self))
+            row = ServerRow(srv, self)
+            row.connect("button-press-event", self.on_row_button)
+            page.listbox.add(row)
 
     def _filter_servers(self, entry, page_box):
         for page in self.group_pages.values():
@@ -1061,8 +1075,12 @@ class App(Gtk.Window):
                             existing.add(srv["guid"])
                             added += 1
                     self.config["servers"] = self.servers
-                    if not self.config.get("groups"):
-                        self.config["groups"] = {"Default": [s["guid"] for s in self.servers]}
+                    groups = self.config.setdefault("groups", {})
+                    groups.setdefault("Default", [])
+                    for srv in self.servers:
+                        g = srv.get("guid", server_guid(srv))
+                        if g not in groups["Default"]:
+                            groups["Default"].append(g)
                     save_config(self.config)
                     GLib.idle_add(self._servers_changed)
                     if not silent:
@@ -1102,8 +1120,8 @@ class App(Gtk.Window):
                 srv["guid"] = server_guid(srv)
                 self.servers.append(srv)
                 self.config["servers"] = self.servers
-                if not self.config.get("groups"):
-                    self.config["groups"] = {"Default": [s["guid"] for s in self.servers]}
+                groups = self.config.setdefault("groups", {})
+                groups.setdefault("Default", []).append(srv["guid"])
                 save_config(self.config)
                 self._servers_changed()
             else:
@@ -1131,15 +1149,105 @@ class App(Gtk.Window):
                             self.servers.append(srv)
                             added += 1
                 self.config["servers"] = self.servers
-                if not self.config.get("groups"):
-                    self.config["groups"] = {"Default": [s["guid"] for s in self.servers]}
+                groups = self.config.setdefault("groups", {})
+                groups.setdefault("Default", [])
+                for srv in self.servers:
+                    g = srv.get("guid", server_guid(srv))
+                    if g not in groups["Default"]:
+                        groups["Default"].append(g)
                 save_config(self.config)
                 self._servers_changed()
                 self._toast("Imported {} servers".format(added))
             except Exception as e:
                 self._toast("Import failed: {}".format(e))
 
+    def on_row_button(self, widget, event):
+        if event.button == 3:
+            menu = Gtk.Menu()
+            items = [
+                ("Connect", lambda: self._connect_to(widget.server)),
+                ("Speed Test", lambda: self._test_one(widget.server)),
+                ("Copy Link", lambda: self._copy_text(widget.server.get("raw", ""))),
+                ("Copy Config", lambda: self._copy_text(
+                    json.dumps(widget.server.get("outbound", {}), indent=2))),
+                ("Copy Address", lambda: self._copy_text(self._server_addr(widget.server))),
+                ("Remove", lambda: self._remove_server(widget.server))
+            ]
+            for label, cb in items:
+                item = Gtk.MenuItem(label=label)
+                item.connect("activate", lambda w, c=cb: c())
+                menu.append(item)
+            menu.show_all()
+            menu.popup_at_pointer(event)
+        return False
+
+    def _server_addr(self, srv):
+        s = srv.get("outbound", {}).get("settings", {})
+        if s.get("vnext"):
+            return "{}:{}".format(s["vnext"][0].get("address", ""), s["vnext"][0].get("port", ""))
+        if s.get("servers"):
+            return "{}:{}".format(s["servers"][0].get("address", ""), s["servers"][0].get("port", ""))
+        return ""
+
+    def _connect_to(self, srv):
+        self.selected = srv
+        self.remark_label.set_text(srv.get("remark", ""))
+        self.config["selected_guid"] = srv.get("guid", server_guid(srv))
+        save_config(self.config)
+        self._refresh_selection()
+        if not os.path.exists(XRAY_BIN):
+            self._toast("Xray-core not found. Re-run install.sh")
+            return
+        mode = self.mode_combo.get_active_id() or "socks"
+        if mode == "tun" and os.geteuid() != 0:
+            self._toast("TUN mode needs root: sudo crtunnel")
+            return
+        threading.Thread(target=self._connect_worker, args=(srv, mode), daemon=True).start()
+
+    def _test_one(self, srv):
+        s = srv.get("outbound", {}).get("settings", {})
+        if s.get("vnext"):
+            host, port = s["vnext"][0].get("address", ""), s["vnext"][0].get("port", 443)
+        elif s.get("servers"):
+            host, port = s["servers"][0].get("address", ""), s["servers"][0].get("port", 443)
+        else:
+            return
+        def worker():
+            ms = tcp_ping(host, int(port))
+            srv["ping"] = int(ms) if ms is not None else None
+            self.config["servers"] = self.servers
+            save_config(self.config)
+            GLib.idle_add(self._test_one_done, srv, ms)
+        threading.Thread(target=worker, daemon=True).start()
+
+    def _test_one_done(self, srv, ms):
+        for page in self.group_pages.values():
+            self._fill_list(page)
+        self._toast("{}: {} ms".format(
+            srv.get("remark", "Server"),
+            int(ms) if ms is not None else "unreachable"
+        ))
+
+    def _copy_text(self, text):
+        if not text:
+            self._toast("Nothing to copy")
+            return
+        clip = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        clip.set_text(text, -1)
+        clip.store()
+        self._toast("Copied to clipboard")
+
+    def _remove_server(self, srv):
+        self.servers.remove(srv)
+        if self.selected == srv:
+            self.selected = None
+        self.config["servers"] = self.servers
+        save_config(self.config)
+        self._servers_changed()
+
     def _servers_changed(self):
+        groups = self.config.setdefault("groups", {})
+        groups.setdefault("Default", [])
         self._populate_groups()
         self.circle.queue_draw()
 
