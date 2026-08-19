@@ -45,12 +45,6 @@ cat > "$BIN_DIR/crtunnel" <<EOF
 exec python3 "$APP_DIR/crtunnel.py" "\$@"
 EOF
 chmod +x "$BIN_DIR/crtunnel"
-if [ -w /usr/local/bin ] || command -v sudo >/dev/null 2>&1; then
-  if sudo -n true 2>/dev/null; then
-    sudo ln -sf "$BIN_DIR/crtunnel" /usr/local/bin/crtunnel
-    echo "  -> Also linked to /usr/local/bin (works with 'sudo crtunnel')"
-  fi
-fi
 
 echo "[3/3] Downloading Xray-core..."
 ARCH=""
@@ -78,5 +72,4 @@ echo "        export PATH=\"\$HOME/.local/bin:\$PATH\""
 echo "        (add the line above to ~/.bashrc or ~/.zshrc)"
 echo ""
 echo "  TUN (system-wide) mode requires root: sudo crtunnel"
-echo "  (if 'sudo crtunnel' fails, use: sudo \$(which crtunnel))"
 echo ""
