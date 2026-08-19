@@ -14,4 +14,3 @@ app/libs/libv2ray.aar
 
 # Signing keystore (created from GitHub secret in CI, local copy ignored)
 app/signing/
-__pycache__/
