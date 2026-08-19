@@ -9,7 +9,7 @@
 [![Stars](https://img.shields.io/github/stars/CyebRageAnonymuos/CR-TUNNEL-VPN?style=for-the-badge&color=39FF14&labelColor=0d1117)](https://github.com/CyebRageAnonymuos/CR-TUNNEL-VPN/stargazers)
 [![License](https://img.shields.io/github/license/CyebRageAnonymuos/CR-TUNNEL-VPN?style=for-the-badge&color=39FF14&labelColor=0d1117)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/CyebRageAnonymuos/CR-TUNNEL-VPN?style=for-the-badge&color=39FF14&labelColor=0d1117)](https://github.com/CyebRageAnonymuos/CR-TUNNEL-VPN/commits/main)
-[![Platform](https://img.shields.io/badge/platform-Android-39FF14?style=for-the-badge&labelColor=0d1117&logo=android&logoColor=39FF14)](#-download)
+[![Platform](https://img.shields.io/badge/platform-Android%20%26%20Linux-39FF14?style=for-the-badge&labelColor=0d1117&logo=linux&logoColor=39FF14)](#-download)
 [![Core](https://img.shields.io/badge/core-Xray--core-39FF14?style=for-the-badge&labelColor=0d1117)](https://github.com/XTLS/Xray-core)
 
 ### **[🇬🇧 English](#-english)** &nbsp;·&nbsp; **[ فارسی](#-فارسی)**
@@ -29,13 +29,14 @@
 
 </div>
 
-CR TUNNEL is a free, fully open-source Android VPN client for VLESS, XHTTP, VMess, Trojan, Shadowsocks, SOCKS, and Hysteria2 — built on the Xray-core engine and wrapped in a neon Cyber-Rage shell. No ads. No tracking. No catch.
+CR TUNNEL is a free, fully open-source VPN client for **Android and Linux** — supporting VLESS, XHTTP, VMess, Trojan, Shadowsocks, SOCKS, and Hysteria2 — built on the Xray-core engine and wrapped in a neon Cyber-Rage shell. No ads. No tracking. No catch.
 
 ## 📋 Table of Contents
 
 - [Features](#features)
 - [How It Works](#how-it-works)
 - [Download](#download)
+- [Linux Version](#-linux-version)
 - [Auto Optimize](#auto-optimize)
 - [Supported Protocols](#supported-protocols)
 - [Per-App Proxy](#per-app-proxy)
@@ -93,6 +94,62 @@ https://github.com/CyebRageAnonymuos/CR-TUNNEL-VPN/actions
 
 Minimum: **Android 7.0 (API 24)**.
 
+## 🐧 Linux Version
+
+CR TUNNEL is also available for **Linux** — a lightweight GTK3 desktop client powered by the same Xray-core engine.
+
+### Features
+
+| | Feature |
+|---|---|
+| 🖥️ | Native GTK3 desktop app (Python) |
+| 🔌 | Add servers via subscription link or direct `vless://` / `vmess://` / `trojan://` / `ss://` links |
+| 🌐 | Two modes: **Proxy** (SOCKS 10808 + HTTP 10809) and **TUN** (system-wide, needs root) |
+| ⚡ | Auto-downloads the official Xray-core binary for your architecture |
+| 📦 | No compilation required — install and run |
+
+### Requirements
+
+- **Python 3** with GTK3 bindings (`python3-gi` + `gir1.2-gtk-3.0`)
+- `curl`, `unzip`
+- **root** only if you want TUN (system-wide) mode
+
+### Installation
+
+```bash
+# 1. Install requirements (Debian/Ubuntu):
+sudo apt install python3 python3-gi gir1.2-gtk-3.0 curl unzip
+
+# 2. Download the Linux release, then:
+cd linux
+./install.sh
+
+# 3. Run:
+crtunnel
+```
+
+> If `crtunnel` isn't found, add `$HOME/.local/bin` to your PATH:
+> ```bash
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+> ```
+
+### Usage
+
+1. Click **Add Subscription** or **Add Link** to import your configs.
+2. Select a server from the list.
+3. Click **Connect**.
+4. Point your apps at `127.0.0.1:10808` (SOCKS) or `127.0.0.1:10809` (HTTP), or switch to **TUN** mode for system-wide routing (`sudo crtunnel`).
+
+### Build From Source
+
+```bash
+git clone https://github.com/CyebRageAnonymuos/CR-TUNNEL-VPN.git
+cd CR-TUNNEL-VPN/linux
+./install.sh
+```
+
+Configs are stored at `~/.config/crtunnel/config.json`; Xray-core lives at `~/.local/share/crtunnel/xray`.
+
 ## 🚀 Auto Optimize
 
 Tap the **⚡ button** on the main screen and CR TUNNEL will:
@@ -132,6 +189,9 @@ GitHub Actions also builds a fresh APK on every push — check the **Actions** t
 ```
 CR-TUNNEL-VPN/
 ├── CR-TUNNEL/                          # Main Android app (Kotlin/Java)
+├── linux/                              # Linux desktop client (GTK3 + Xray-core)
+│   ├── crtunnel.py                     # Main app
+│   └── install.sh                      # Installer (downloads Xray-core)
 ├── AndroidLibXrayLite/                 # Xray-core ↔ Android bridge (submodule)
 ├── hev-socks5-tunnel/                  # Native tun2socks engine (submodule)
 ├── docs/                               # Project documentation
@@ -190,13 +250,14 @@ CR TUNNEL is a client-side privacy and anti-censorship tool. It doesn't target, 
 
 </div>
 
-CR TUNNEL یک کلاینت VPN رایگان و کاملاً متن‌باز برای اندرویده که از VLESS، XHTTP، VMess، Trojan، Shadowsocks، SOCKS و Hysteria2 پشتیبانی می‌کنه — روی هسته‌ی Xray-core ساخته شده و توی یک پوسته‌ی نئونی از Cyber-Rage پیچیده شده. بدون تبلیغ، بدون ردیابی، بدون هیچ حقه‌ای.
+CR TUNNEL یک کلاینت VPN رایگان و کاملاً متن‌باز برای **اندروید و لینوکس** هست که از VLESS، XHTTP، VMess، Trojan، Shadowsocks، SOCKS و Hysteria2 پشتیبانی می‌کنه — روی هسته‌ی Xray-core ساخته شده و توی یک پوسته‌ی نئونی از Cyber-Rage پیچیده شده. بدون تبلیغ، بدون ردیابی، بدون هیچ حقه‌ای.
 
 ## 📋 فهرست
 
 - [امکانات](#امکانات)
 - [نحوه کارکرد](#نحوه-کارکرد)
 - [دانلود](#دانلود)
+- [نسخه لینوکس](#-نسخه-لینوکس)
 - [بهینه‌سازی خودکار](#بهینه‌سازی-خودکار)
 - [پروتکل‌های پشتیبانی‌شده](#پروتکل‌های-پشتیبانی‌شده)
 - [پروکسی اختصاصی اپ‌ها](#پروکسی-اختصاصی-اپها)
@@ -255,6 +316,62 @@ https://github.com/CyebRageAnonymuos/CR-TUNNEL-VPN/actions
 
 حداقل نسخه‌ی موردنیاز: **اندروید ۷.۰ (API 24)**.
 
+## 🐧 نسخه لینوکس
+
+CR TUNNEL برای **لینوکس** هم در دسترسه — یک کلاینت دسکتاپ سبک GTK3 که روی همون موتور Xray-core کار می‌کنه.
+
+### امکانات
+
+| | امکان |
+|---|---|
+| 🖥️ | اپ دسکتاپ نیتیو GTK3 (پایتون) |
+| 🔌 | افزودن سرور با لینک ساب‌اسکریپشن یا لینک مستقیم `vless://` / `vmess://` / `trojan://` / `ss://` |
+| 🌐 | دو حالت: **پروکسی** (SOCKS پورت ۱۰۸۰۸ + HTTP پورت ۱۰۸۰۹) و **TUN** (سراسر سیستم، نیاز به روت) |
+| ⚡ | دانلود خودکار باینری رسمی Xray-core برای معماری سیستم‌ت |
+| 📦 | بدون نیاز به کامپایل — نصب کن و اجرا کن |
+
+### نیازمندی‌ها
+
+- **پایتون ۳** با پشتیبانی GTK3 (`python3-gi` و `gir1.2-gtk-3.0`)
+- `curl` و `unzip`
+- **روت** فقط برای حالت TUN (سراسر سیستم)
+
+### نصب
+
+```bash
+# 1. نصب نیازمندی‌ها (دبیان/اوبونتو):
+sudo apt install python3 python3-gi gir1.2-gtk-3.0 curl unzip
+
+# 2. دانلود ریلیز لینوکس، سپس:
+cd linux
+./install.sh
+
+# 3. اجرا:
+crtunnel
+```
+
+> اگه `crtunnel` پیدا نشد، `$HOME/.local/bin` رو به PATH اضافه کن:
+> ```bash
+> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+> ```
+
+### طرز استفاده
+
+۱. با دکمه‌ی **Add Subscription** یا **Add Link** کانفیگ‌هات رو اضافه کن.
+۲. از لیست یک سرور انتخاب کن.
+۳. روی **Connect** بزن.
+۴. اپ‌هات رو روی `127.0.0.1:10808` (SOCKS) یا `127.0.0.1:10809` (HTTP) تنظیم کن، یا برای مسیریابی سراسری حالت **TUN** رو انتخاب کن (`sudo crtunnel`).
+
+### ساخت از سورس
+
+```bash
+git clone https://github.com/CyebRageAnonymuos/CR-TUNNEL-VPN.git
+cd CR-TUNNEL-VPN/linux
+./install.sh
+```
+
+کانفیگ‌ها در `~/.config/crtunnel/config.json` ذخیره می‌شن؛ Xray-core در `~/.local/share/crtunnel/xray` قرار می‌گیره.
+
 ## 🚀 بهینه‌سازی خودکار
 
 دکمه‌ی **⚡** رو بزن، همین سه اتفاق می‌افته: تست پینگ واقعی روی همه‌ی کانفیگ‌ها، انتخاب کم‌تأخیرترین گزینه، و اتصال خودکار بهش — بدون این‌که خودت دستی چیزی رو عوض کنی.
@@ -290,6 +407,9 @@ NDK_HOME=/path/to/android-ndk ./compile-hevtun.sh
 ```
 CR-TUNNEL-VPN/
 ├── CR-TUNNEL/                          # اپ اصلی اندروید (Kotlin/Java)
+├── linux/                              # کلاینت دسکتاپ لینوکس (GTK3 + Xray-core)
+│   ├── crtunnel.py                     # اپ اصلی
+│   └── install.sh                      # نصب‌کننده (دانلود Xray-core)
 ├── AndroidLibXrayLite/                 # پل Xray-core به اندروید (ساب‌ماژول)
 ├── hev-socks5-tunnel/                  # موتور نیتیو تانل (ساب‌ماژول)
 ├── docs/                               # مستندات پروژه
