@@ -15,7 +15,8 @@ import urllib.request
 try:
     import gi
     gi.require_version("Gtk", "3.0")
-    from gi.repository import Gtk, GLib
+    gi.require_version("Gdk", "3.0")
+    from gi.repository import Gtk, Gdk, GLib
 except Exception:
     print("GTK3 is required. Install it with: sudo apt install python3-gi gir1.2-gtk-3.0")
     sys.exit(1)
@@ -513,11 +514,13 @@ class App(Gtk.Window):
         """
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
-        Gtk.StyleContext.add_provider_for_screen(
-            Gtk.StyleContext.get_default().get_screen(),
-            provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
-        )
+        screen = Gdk.Screen.get_default()
+        if screen is not None:
+            Gtk.StyleContext.add_provider_for_screen(
+                screen,
+                provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
 
     def refresh_server_list(self):
         self.liststore.clear()
