@@ -1,5 +1,12 @@
 package com.cr.tunnel.ui.main
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
@@ -130,50 +138,6 @@ fun ConnectionSection(
                 totalDownlink = totalDownlink
             )
             Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(
-                    if (isDarkTheme) Color(0x2200E5FF) else Color(0x0F00A8C4)
-                )
-                .border(
-                    1.dp,
-                    if (isAutoOptimizing) Brush.linearGradient(
-                        listOf(
-                            NeonCyan,
-                            NeonPurple
-                        )
-                    )
-                    else Brush.linearGradient(listOf(Color(0x3300E5FF), Color(0x33A855F7))),
-                    RoundedCornerShape(18.dp)
-                )
-                .clickable(onClick = {
-                    if (isAutoOptimizing) onCancelAutoOptimize() else onAutoOptimize()
-                })
-                .clip(RoundedCornerShape(18.dp))
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                painter = if (isAutoOptimizing) painterResource(R.drawable.ic_flash_off_24dp)
-                else painterResource(R.drawable.ic_flash_on_24dp),
-                contentDescription = null,
-                tint = if (isAutoOptimizing) NeonPurple else NeonCyan,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = stringResource(
-                    if (isAutoOptimizing) R.string.menu_auto_optimize_cancel
-                    else R.string.menu_auto_optimize
-                ),
-                style = MaterialTheme.typography.labelLarge,
-                color = if (isAutoOptimizing) NeonPurple else NeonCyan,
-                fontWeight = FontWeight.SemiBold
-            )
         }
     }
 }
@@ -307,50 +271,136 @@ private fun ConnectionCircle(
     elapsedSeconds: Long,
     onClick: () -> Unit
 ) {
+    val glowColor = if (isRunning) colorPing else NeonCyan
     val ringColors = if (isRunning) {
         listOf(colorPing, NeonCyan, colorPing)
     } else {
         listOf(NeonCyan, NeonPurple, NeonCyan)
     }
-    val glowColor = if (isRunning) colorPing else NeonCyan
+
+    val transition = rememberInfiniteTransition(label = "connectionCircle")
+
+    val rotation by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 6000, easing = LinearEasing)),
+        label = "rotation"
+    )
+    val pulse by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(durationMillis = 2600, easing = FastOutSlowInEasing)),
+        label = "pulse"
+    )
+    val breath by transition.animateFloat(
+        initialValue = 0.95f,
+        targetValue = 1.05f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "breath"
+    )
+
+    Box(
+        modifier = Modifier
+            .size(190.dp)
+            .graphicsLayer { rotationZ = rotation },
+        contentAlignment = Alignment.Center
+    ) {
+        // Static base ring
+        Box(
+            modifier = Modifier
+                .size(190.dp)
+                .drawWithCache {
+                    val stroke = 8.dp.toPx()
+                    val arcInset = stroke / 2
+                    val arcSize = Size(size.width - stroke, size.height - stroke)
+                    val arcTopLeft = Offset(arcInset, arcInset)
+                    val centerOffset = Offset(size.width / 2f, size.height / 2f)
+                    val brush = Brush.sweepGradient(
+                        colors = ringColors.map { it.copy(alpha = 0.35f) },
+                        center = centerOffset
+                    )
+                    onDrawBehind {
+                        drawArc(
+                            brush = brush,
+                            startAngle = 0f,
+                            sweepAngle = 360f,
+                            useCenter = false,
+                            topLeft = arcTopLeft,
+                            size = arcSize,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                    }
+                }
+        )
+
+        // Rotating conic ring
+        Box(
+            modifier = Modifier
+                .size(190.dp)
+                .drawWithCache {
+                    val stroke = 3.dp.toPx()
+                    val inset = 1.dp.toPx()
+                    val arcSize = Size(size.width - inset * 2, size.height - inset * 2)
+                    val arcTopLeft = Offset(inset, inset)
+                    val centerOffset = Offset(size.width / 2f, size.height / 2f)
+                    val brush = Brush.sweepGradient(
+                        colors = if (isRunning) {
+                            listOf(Color.Transparent, glowColor.copy(alpha = 0.9f), Color.Transparent)
+                        } else {
+                            listOf(Color.Transparent, NeonCyan.copy(alpha = 0.6f), NeonPurple.copy(alpha = 0.7f), Color.Transparent)
+                        },
+                        center = centerOffset
+                    )
+                    onDrawBehind {
+                        drawArc(
+                            brush = brush,
+                            startAngle = 0f,
+                            sweepAngle = if (isRunning) 320f else 230f,
+                            useCenter = false,
+                            topLeft = arcTopLeft,
+                            size = arcSize,
+                            style = Stroke(width = stroke, cap = StrokeCap.Round)
+                        )
+                    }
+                }
+        )
+
+        // Expanding pulse rings
+        if (isRunning) {
+            val pulseScale = 1f + pulse * 0.5f
+            val pulseAlpha = (1f - pulse) * 0.55f
+            Box(
+                modifier = Modifier
+                    .size(190.dp)
+                    .graphicsLayer {
+                        scaleX = pulseScale
+                        scaleY = pulseScale
+                        alpha = pulseAlpha
+                    }
+                    .border(2.dp, glowColor.copy(alpha = 0.7f), CircleShape)
+            )
+            Box(
+                modifier = Modifier
+                    .size(190.dp)
+                    .graphicsLayer {
+                        scaleX = pulseScale + 0.2f
+                        scaleY = pulseScale + 0.2f
+                        alpha = pulseAlpha * 0.5f
+                    }
+                    .border(1.5.dp, NeonPurple.copy(alpha = 0.6f), CircleShape)
+            )
+        }
+    }
 
     Box(
         modifier = Modifier
             .size(170.dp)
-            .drawWithCache {
-                val stroke = 8.dp.toPx()
-                val arcInset = stroke / 2
-                val arcSize = Size(size.width - stroke, size.height - stroke)
-                val arcTopLeft = Offset(arcInset, arcInset)
-                val centerOffset = Offset(size.width / 2f, size.height / 2f)
-                val ringBrush = Brush.sweepGradient(
-                    colors = ringColors,
-                    center = centerOffset
-                )
-                val glowBrush = Brush.sweepGradient(
-                    colors = listOf(Color.Transparent, glowColor.copy(alpha = 0.35f), Color.Transparent),
-                    center = centerOffset
-                )
-                onDrawBehind {
-                    drawArc(
-                        brush = ringBrush,
-                        startAngle = 0f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        topLeft = arcTopLeft,
-                        size = arcSize,
-                        style = Stroke(width = stroke, cap = StrokeCap.Round)
-                    )
-                    drawArc(
-                        brush = glowBrush,
-                        startAngle = 0f,
-                        sweepAngle = 120f,
-                        useCenter = false,
-                        topLeft = arcTopLeft,
-                        size = arcSize,
-                        style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-                    )
-                }
+            .graphicsLayer {
+                scaleX = breath
+                scaleY = breath
             }
             .padding(22.dp)
             .clip(CircleShape)
