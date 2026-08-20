@@ -74,6 +74,7 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.math.abs
+import kotlinx.coroutines.delay
 
 @Composable
 fun GroupPagerPage(
@@ -261,11 +262,15 @@ private fun ServerItemRow(
     var countryFlag by remember(serverCache.guid) {
         mutableStateOf(CountryResolver.getCountryCode(serverCache.guid).let { CountryResolver.flagEmoji(it) })
     }
-    LaunchedEffect(serverCache.guid, countryFlag) {
-        if (countryFlag.isBlank()) {
+    LaunchedEffect(serverCache.guid) {
+        while (countryFlag.isBlank()) {
+            var resolved = false
             CountryResolver.resolve(serverCache.guid, profile) { code ->
                 countryFlag = CountryResolver.flagEmoji(code)
+                resolved = true
             }
+            if (resolved) break
+            delay(4000)
         }
     }
 
@@ -307,11 +312,15 @@ private fun ServerItemColumn(
     var countryFlag by remember(serverCache.guid) {
         mutableStateOf(CountryResolver.getCountryCode(serverCache.guid).let { CountryResolver.flagEmoji(it) })
     }
-    LaunchedEffect(serverCache.guid, countryFlag) {
-        if (countryFlag.isBlank()) {
+    LaunchedEffect(serverCache.guid) {
+        while (countryFlag.isBlank()) {
+            var resolved = false
             CountryResolver.resolve(serverCache.guid, profile) { code ->
                 countryFlag = CountryResolver.flagEmoji(code)
+                resolved = true
             }
+            if (resolved) break
+            delay(4000)
         }
     }
     Column {

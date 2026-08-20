@@ -17,6 +17,7 @@ import com.cr.tunnel.core.CoreServiceManager
 import com.cr.tunnel.dto.entities.ProfileItem
 import com.cr.tunnel.extension.toSpeedString
 import com.cr.tunnel.ui.main.MainActivity
+import com.cr.tunnel.helper.MessageHelper
 import com.cr.tunnel.util.LogUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,7 @@ object NotificationManager {
     private var mBuilder: NotificationCompat.Builder? = null
     private var speedNotificationJob: Job? = null
     private var mNotificationManager: NotificationManager? = null
+    private var uiTrafficStatsJob: Job? = null
 
     /**
      * Starts the speed notification.
@@ -55,6 +57,39 @@ object NotificationManager {
                 delay(QUERY_INTERVAL_MS)
             }
         }
+    }
+
+    /**
+     * Starts a lightweight one-second traffic poll that broadcasts cumulative
+     * proxy traffic totals to the UI. Runs inside the service process where the
+     * core controller is actually alive.
+     */
+    fun startUiTrafficStatsBroadcast() {
+        if (uiTrafficStatsJob != null) return
+        val service = getService() ?: return
+        uiTrafficStatsJob = CoroutineScope(Dispatchers.IO).launch {
+            while (isActive) {
+                var uplink = 0L
+                var downlink = 0L
+                CoreServiceManager.queryAllOutboundTrafficStats().forEach { stat ->
+                    when {
+                        stat.tag == AppConfig.TAG_BLOCKED -> {}
+                        stat.direction == AppConfig.UPLINK -> uplink += stat.value
+                        stat.direction == AppConfig.DOWNLINK -> downlink += stat.value
+                    }
+                }
+                MessageHelper.sendMsg2UI(service, AppConfig.MSG_TRAFFIC_STATS, "$uplink,$downlink")
+                delay(1000)
+            }
+        }
+    }
+
+    /**
+     * Stops the UI traffic stats broadcast.
+     */
+    fun stopUiTrafficStatsBroadcast() {
+        uiTrafficStatsJob?.cancel()
+        uiTrafficStatsJob = null
     }
 
     /**

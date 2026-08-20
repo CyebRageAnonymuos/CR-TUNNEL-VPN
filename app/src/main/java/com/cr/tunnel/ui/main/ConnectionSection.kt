@@ -87,15 +87,14 @@ fun ConnectionSection(
             .padding(horizontal = 20.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (isRunning) {
-            ProtectedBanner(
-                isDarkTheme = isDarkTheme,
-                isAutoOptimizing = isAutoOptimizing,
-                onAutoOptimize = onAutoOptimize,
-                onCancelAutoOptimize = onCancelAutoOptimize
-            )
-            Spacer(modifier = Modifier.height(14.dp))
-        }
+        ProtectedBanner(
+            isDarkTheme = isDarkTheme,
+            isRunning = isRunning,
+            isAutoOptimizing = isAutoOptimizing,
+            onAutoOptimize = onAutoOptimize,
+            onCancelAutoOptimize = onCancelAutoOptimize
+        )
+        Spacer(modifier = Modifier.height(14.dp))
 
         ConnectionCircle(
             isRunning = isRunning,
@@ -182,6 +181,7 @@ fun ConnectionSection(
 @Composable
 private fun ProtectedBanner(
     isDarkTheme: Boolean,
+    isRunning: Boolean,
     isAutoOptimizing: Boolean,
     onAutoOptimize: () -> Unit,
     onCancelAutoOptimize: () -> Unit
@@ -216,13 +216,17 @@ private fun ProtectedBanner(
             Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
-                    text = stringResource(R.string.protected_title),
+                    text = stringResource(
+                        if (isRunning) R.string.protected_title else R.string.status_not_protected
+                    ),
                     style = MaterialTheme.typography.titleSmall,
-                    color = colorPing,
+                    color = if (isRunning) colorPing else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = stringResource(R.string.protected_subtitle),
+                    text = stringResource(
+                        if (isRunning) R.string.protected_subtitle else R.string.status_tap_connect
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 11.sp
@@ -409,20 +413,20 @@ private fun ConnectionCircle(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = stringResource(R.string.connected_status),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     color = colorPing,
                     fontFamily = FontFamily.Serif,
                     fontStyle = FontStyle.Italic,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    letterSpacing = 2.sp
+                    fontSize = 13.sp,
+                    letterSpacing = 1.5.sp
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     text = formatElapsed(elapsedSeconds),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 12.sp
+                    fontSize = 11.sp
                 )
             }
         } else {

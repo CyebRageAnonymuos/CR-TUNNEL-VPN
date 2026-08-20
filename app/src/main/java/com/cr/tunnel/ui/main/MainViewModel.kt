@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cr.tunnel.AppConfig
 import com.cr.tunnel.R
-import com.cr.tunnel.core.CoreServiceManager
 import com.cr.tunnel.dto.GroupMapItem
 import com.cr.tunnel.dto.LocateTarget
 import com.cr.tunnel.dto.TestServiceMessage
@@ -30,7 +29,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -51,9 +49,11 @@ class MainViewModel(
     private val connectedText: String = dataSource.getString(R.string.connection_connected)
 
     private var trafficPollJob: Job? = null
+    private var lastTrafficQueryTime = 0L
+    private var totalTrafficUplink = 0L
+    private var totalTrafficDownlink = 0L
     private var lastTrafficUplink = 0L
     private var lastTrafficDownlink = 0L
-    private var lastTrafficQueryTime = 0L
 
     private var autoOptimizePending = false
     private var autoConnectBestServers = false
@@ -153,6 +153,28 @@ init {
 
             is MainServiceEvent.MeasureConfigFinish -> {
                 onTestsFinished()
+            }
+
+            is MainServiceEvent.TrafficStats -> {
+                val now = System.currentTimeMillis()
+                val deltaUp = if (event.uplink >= lastTrafficUplink) event.uplink - lastTrafficUplink else event.uplink
+                val deltaDown = if (event.downlink >= lastTrafficDownlink) event.downlink - lastTrafficDownlink else event.downlink
+                totalTrafficUplink += deltaUp
+                totalTrafficDownlink += deltaDown
+                val elapsedSec = ((now - lastTrafficQueryTime).coerceAtLeast(0L)) / 1000.0
+                lastTrafficUplink = event.uplink
+                lastTrafficDownlink = event.downlink
+                lastTrafficQueryTime = now
+                val upSpeed = if (elapsedSec > 0) (deltaUp / elapsedSec).toLong() else deltaUp
+                val downSpeed = if (elapsedSec > 0) (deltaDown / elapsedSec).toLong() else deltaDown
+                _uiState.update { state ->
+                    state.copy(
+                        uplinkSpeed = formatSpeed(upSpeed),
+                        downlinkSpeed = formatSpeed(downSpeed),
+                        totalUplink = formatBytes(totalTrafficUplink),
+                        totalDownlink = formatBytes(totalTrafficDownlink)
+                    )
+                }
             }
         }
     }
@@ -823,60 +845,13 @@ init {
                 else if (running) connectedText else disconnectedText
             )
         }
-        if (running) startTrafficPolling() else stopTrafficPolling()
-    }
-
-    private fun startTrafficPolling() {
-        stopTrafficPolling()
-        lastTrafficUplink = 0L
-        lastTrafficDownlink = 0L
-        lastTrafficQueryTime = 0L
-        trafficPollJob = viewModelScope.launch(ioDispatcher) {
-            while (isActive) {
-                updateTrafficStats()
-                delay(1000)
-            }
+        if (running) {
+            totalTrafficUplink = 0L
+            totalTrafficDownlink = 0L
+            lastTrafficUplink = 0L
+            lastTrafficDownlink = 0L
+            lastTrafficQueryTime = System.currentTimeMillis()
         }
-    }
-
-    private fun stopTrafficPolling() {
-        trafficPollJob?.cancel()
-        trafficPollJob = null
-        _uiState.update { it.copy(uplinkSpeed = "0 B/s", downlinkSpeed = "0 B/s") }
-    }
-
-    private fun updateTrafficStats() {
-        if (!CoreServiceManager.isRunning()) {
-            _uiState.update { it.copy(uplinkSpeed = "0 B/s", downlinkSpeed = "0 B/s") }
-            return
-        }
-        val now = System.currentTimeMillis()
-        var uplink = 0L
-        var downlink = 0L
-        CoreServiceManager.queryAllOutboundTrafficStats().forEach { stat ->
-            when (stat.direction) {
-                AppConfig.UPLINK -> uplink += stat.value
-                AppConfig.DOWNLINK -> downlink += stat.value
-            }
-        }
-        if (lastTrafficQueryTime > 0) {
-            val elapsedSec = (now - lastTrafficQueryTime) / 1000.0
-            if (elapsedSec > 0) {
-                val upSpeed = ((uplink - lastTrafficUplink) / elapsedSec).toLong()
-                val downSpeed = ((downlink - lastTrafficDownlink) / elapsedSec).toLong()
-                _uiState.update {
-                    it.copy(
-                        uplinkSpeed = formatSpeed(upSpeed),
-                        downlinkSpeed = formatSpeed(downSpeed),
-                        totalUplink = formatBytes(uplink),
-                        totalDownlink = formatBytes(downlink)
-                    )
-                }
-            }
-        }
-        lastTrafficUplink = uplink
-        lastTrafficDownlink = downlink
-        lastTrafficQueryTime = now
     }
 
     private fun formatSpeed(bytesPerSec: Long): String {
