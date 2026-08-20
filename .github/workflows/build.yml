@@ -13,16 +13,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4.0.1
 
       - name: Download libv2ray.aar
         run: |
@@ -46,7 +46,7 @@ jobs:
         run: ./gradlew :app:assemblePlaystoreRelease --no-daemon --stacktrace
 
       - name: Upload APKs as artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: crtunnel-apks
           path: app/build/outputs/apk/playstore/release/*.apk
