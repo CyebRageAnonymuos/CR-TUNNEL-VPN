@@ -561,7 +561,7 @@
     <string name="stats_per_app_proxy">Proxy theo ứng dụng</string>
     <string name="stats_routing">Định tuyến</string>
     <string name="stats_about">Giới thiệu</string>
-    <string name="stats_backup_restore">Sao lưu & khôi phục</string>
+    <string name="stats_backup_restore">Sao lưu &amp; khôi phục</string>
     <string name="stats_check_update">Kiểm tra cập nhật</string>
     <string name="stats_logcat">Logcat</string>
     <string name="status_protected">Được bảo vệ</string>
