@@ -542,4 +542,30 @@
     <string name="connection_test_empty_message">không có thông tin chi tiết</string>
     <string name="value_unknown">không xác định</string>
 
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_configs">Cấu hình</string>
+    <string name="nav_stats">Thống kê</string>
+    <string name="nav_settings">Cài đặt</string>
+    <string name="stats_session_title">Phiên</string>
+    <string name="stats_total_title">Tổng</string>
+    <string name="stats_uplink">Tải lên</string>
+    <string name="stats_downlink">Tải xuống</string>
+    <string name="stats_speed">Tốc độ</string>
+    <string name="stats_uptime">Thời gian hoạt động</string>
+    <string name="stats_status">Trạng thái</string>
+    <string name="stats_connected">Đã kết nối</string>
+    <string name="stats_disconnected">Đã ngắt</string>
+    <string name="stats_quick_actions">Hành động nhanh</string>
+    <string name="stats_open_settings">Mở cài đặt</string>
+    <string name="stats_subscriptions">Đăng ký</string>
+    <string name="stats_per_app_proxy">Proxy theo ứng dụng</string>
+    <string name="stats_routing">Định tuyến</string>
+    <string name="stats_about">Giới thiệu</string>
+    <string name="stats_backup_restore">Sao lưu & khôi phục</string>
+    <string name="stats_check_update">Kiểm tra cập nhật</string>
+    <string name="stats_logcat">Logcat</string>
+    <string name="status_protected">Được bảo vệ</string>
+    <string name="status_secure">Kết nối an toàn</string>
+    <string name="status_not_protected">Chưa kết nối</string>
+    <string name="status_tap_connect">Chạm để kết nối</string>
 </resources>

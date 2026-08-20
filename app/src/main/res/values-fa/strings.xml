@@ -544,4 +544,30 @@
     <string name="menu_import_config">افزودن کانفیگ</string>
     <string name="menu_more">بیشتر</string>
 
+    <string name="nav_home">خانه</string>
+    <string name="nav_configs">کانفیگ‌ها</string>
+    <string name="nav_stats">آمار</string>
+    <string name="nav_settings">تنظیمات</string>
+    <string name="stats_session_title">نشست</string>
+    <string name="stats_total_title">مجموع</string>
+    <string name="stats_uplink">آپلود</string>
+    <string name="stats_downlink">دانلود</string>
+    <string name="stats_speed">سرعت</string>
+    <string name="stats_uptime">زمان اتصال</string>
+    <string name="stats_status">وضعیت</string>
+    <string name="stats_connected">متصل</string>
+    <string name="stats_disconnected">قطع اتصال</string>
+    <string name="stats_quick_actions">اقدامات سریع</string>
+    <string name="stats_open_settings">باز کردن تنظیمات</string>
+    <string name="stats_subscriptions">اشتراک‌ها</string>
+    <string name="stats_per_app_proxy">پراکسی هر برنامه</string>
+    <string name="stats_routing">مسیریابی</string>
+    <string name="stats_about">درباره</string>
+    <string name="stats_backup_restore">پشتیبان‌گیری و بازیابی</string>
+    <string name="stats_check_update">بررسی به‌روزرسانی</string>
+    <string name="stats_logcat">لاگ‌کات</string>
+    <string name="status_protected">محافظت شده</string>
+    <string name="status_secure">اتصال امن</string>
+    <string name="status_not_protected">متصل نیست</string>
+    <string name="status_tap_connect">برای اتصال لمس کنید</string>
 </resources>

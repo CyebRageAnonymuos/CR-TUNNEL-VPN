@@ -542,4 +542,30 @@
     <string name="connection_test_empty_message">沒有詳細資訊</string>
     <string name="value_unknown">未知</string>
 
+    <string name="nav_home">首頁</string>
+    <string name="nav_configs">配置</string>
+    <string name="nav_stats">統計</string>
+    <string name="nav_settings">設定</string>
+    <string name="stats_session_title">工作階段</string>
+    <string name="stats_total_title">總計</string>
+    <string name="stats_uplink">上傳</string>
+    <string name="stats_downlink">下載</string>
+    <string name="stats_speed">速度</string>
+    <string name="stats_uptime">在線時間</string>
+    <string name="stats_status">狀態</string>
+    <string name="stats_connected">已連線</string>
+    <string name="stats_disconnected">未連線</string>
+    <string name="stats_quick_actions">快速操作</string>
+    <string name="stats_open_settings">開啟設定</string>
+    <string name="stats_subscriptions">訂閱</string>
+    <string name="stats_per_app_proxy">應用程式代理</string>
+    <string name="stats_routing">路由</string>
+    <string name="stats_about">關於</string>
+    <string name="stats_backup_restore">備份與還原</string>
+    <string name="stats_check_update">檢查更新</string>
+    <string name="stats_logcat">日誌</string>
+    <string name="status_protected">已保護</string>
+    <string name="status_secure">連線安全</string>
+    <string name="status_not_protected">未連線</string>
+    <string name="status_tap_connect">點擊連接</string>
 </resources>

@@ -542,4 +542,30 @@
     <string name="connection_test_empty_message">কোনো বিবরণ পাওয়া যায়নি</string>
     <string name="value_unknown">অজানা</string>
 
+    <string name="nav_home">হোম</string>
+    <string name="nav_configs">কনফিগ</string>
+    <string name="nav_stats">পরিসংখ্যান</string>
+    <string name="nav_settings">সেটিংস</string>
+    <string name="stats_session_title">সেশন</string>
+    <string name="stats_total_title">মোট</string>
+    <string name="stats_uplink">আপলিংক</string>
+    <string name="stats_downlink">ডাউনলিংক</string>
+    <string name="stats_speed">গতি</string>
+    <string name="stats_uptime">আপটাইম</string>
+    <string name="stats_status">অবস্থা</string>
+    <string name="stats_connected">সংযুক্ত</string>
+    <string name="stats_disconnected">বিচ্ছিন্ন</string>
+    <string name="stats_quick_actions">দ্রুত অ্যাকশন</string>
+    <string name="stats_open_settings">সেটিংস খুলুন</string>
+    <string name="stats_subscriptions">সাবস্ক্রিপশন</string>
+    <string name="stats_per_app_proxy">প্রতি-অ্যাপ প্রক্সি</string>
+    <string name="stats_routing">রাউটিং</string>
+    <string name="stats_about">সম্পর্কে</string>
+    <string name="stats_backup_restore">ব্যাকআপ ও রিস্টোর</string>
+    <string name="stats_check_update">আপডেট পরীক্ষা</string>
+    <string name="stats_logcat">লগক্যাট</string>
+    <string name="status_protected">সুরক্ষিত</string>
+    <string name="status_secure">সংযোগ নিরাপদ</string>
+    <string name="status_not_protected">সংযুক্ত নয়</string>
+    <string name="status_tap_connect">সংযোগ করতে আলতো চাপুন</string>
 </resources>

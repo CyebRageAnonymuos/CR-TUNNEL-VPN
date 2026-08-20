@@ -1,5 +1,13 @@
 package com.cr.tunnel.ui.main
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,13 +28,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -71,7 +75,6 @@ fun MainScreen(
     val shareQRCodeBitmap = uiState.shareQRCodeBitmap
 
     val isDarkTheme = LocalDarkTheme.current
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     var showSearch by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
@@ -206,233 +209,215 @@ fun MainScreen(
         QRCodeDialog(bitmap = shareQRCodeBitmap, onDismiss = { onAction(MainAction.DismissQRCodeDialog) })
     }
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            MainDrawerContent(
-                drawerState = drawerState,
-                onNavigate = { route ->
-                    scope.launch { drawerState.close() }
-                    onNavigate(route)
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
+        topBar = {
+            MainTopBar(
+                selectedTab = selectedTab,
+                isLoading = isLoading,
+                showSearch = showSearch,
+                searchQuery = searchQuery,
+                onSearchQueryChange = { query: String ->
+                    searchQuery = query
+                    onAction(MainAction.Search(query))
+                },
+                onSearchClose = {
+                    searchQuery = ""
+                    onAction(MainAction.Search(""))
+                    showSearch = false
+                },
+                onSearchToggle = { show: Boolean -> showSearch = show },
+                onAction = onAction,
+                onMoreMenuAction = { action ->
+                    when (action) {
+                        MainMoreMenuAction.AutoOptimize -> onAction(MainAction.AutoOptimize)
+                        MainMoreMenuAction.RestartService -> onAction(MainAction.RestartService)
+                        MainMoreMenuAction.DeleteAll -> showDelAllConfirm = true
+                        MainMoreMenuAction.DeleteDuplicate -> showDelDuplicateConfirm = true
+                        MainMoreMenuAction.DeleteInvalid -> showDelInvalidConfirm = true
+                        MainMoreMenuAction.ExportAll -> onAction(MainAction.ExportAll)
+                        MainMoreMenuAction.LocateSelected -> onAction(MainAction.LocateSelectedServer)
+                        MainMoreMenuAction.SortByTestResults -> onAction(MainAction.SortByTestResults)
+                        MainMoreMenuAction.TestAll -> onAction(MainAction.TestAllServers)
+                        MainMoreMenuAction.TestAllRealPing -> onAction(MainAction.TestRealAllServers)
+                        MainMoreMenuAction.UpdateSubscriptions -> onAction(MainAction.UpdateSubscriptions)
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            MainBottomBar(
+                selectedTab = selectedTab,
+                onTabSelected = { tab ->
+                    if (tab == selectedTab) return@MainBottomBar
+                    selectedTab = tab
+                    showSearch = false
+                }
+            )
+        },
+        floatingActionButton = {},
+    ) { innerPadding ->
+        AnimatedContent(
+            targetState = selectedTab,
+            transitionSpec = {
+                val forward = targetState.ordinal > initialState.ordinal
+                if (forward) {
+                    (slideInHorizontally(tween(280, easing = FastOutSlowInEasing)) { it / 4 } +
+                        fadeIn(tween(280))) togetherWith
+                        (slideOutHorizontally(tween(280, easing = FastOutSlowInEasing)) { -it / 4 } +
+                            fadeOut(tween(280)))
+                } else {
+                    (slideInHorizontally(tween(280, easing = FastOutSlowInEasing)) { -it / 4 } +
+                        fadeIn(tween(280))) togetherWith
+                        (slideOutHorizontally(tween(280, easing = FastOutSlowInEasing)) { it / 4 } +
+                            fadeOut(tween(280)))
+                }
+            },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) { tab ->
+            when (tab) {
+                MainTab.Home -> HomeTab(
+                    uiState = uiState,
+                    displayText = displayText,
+                    isDarkTheme = isDarkTheme,
+                    onAction = onAction
+                )
+
+                MainTab.Configs -> ConfigsTab(
+                    mainViewModel = mainViewModel,
+                    groups = groups,
+                    selectedGuid = selectedGuid,
+                    doubleColumnDisplay = doubleColumnDisplay,
+                    confirmRemove = confirmRemove,
+                    searchQuery = searchQuery,
+                    pagerState = pagerState,
+                    lazyListStates = lazyListStates,
+                    lazyGridStates = lazyGridStates,
+                    scope = scope,
+                    onAction = onAction,
+                    shareTarget = { guid, profile, more -> shareTarget = Triple(guid, profile, more) },
+                    removeServer = removeServer
+                )
+
+                MainTab.Stats -> StatsPage(
+                    isRunning = isRunning,
+                    uplinkSpeed = uiState.uplinkSpeed,
+                    downlinkSpeed = uiState.downlinkSpeed,
+                    totalUplink = uiState.totalUplink,
+                    totalDownlink = uiState.totalDownlink,
+                    connectedAtMs = uiState.connectedAtMs,
+                    statusText = displayText
+                )
+
+                MainTab.Settings -> SettingsPage(onNavigate = onNavigate)
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeTab(
+    uiState: MainUiState,
+    displayText: String,
+    isDarkTheme: Boolean,
+    onAction: (MainAction) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (uiState.isAutoOptimizing) {
+            OptimizeBanner(onCancel = { onAction(MainAction.CancelAutoOptimize) })
+        }
+        ConnectionSection(
+            displayText = displayText,
+            isRunning = uiState.isRunning,
+            isAutoOptimizing = uiState.isAutoOptimizing,
+            isDarkTheme = isDarkTheme,
+            connectedAtMs = uiState.connectedAtMs,
+            uplinkSpeed = uiState.uplinkSpeed,
+            downlinkSpeed = uiState.downlinkSpeed,
+            totalUplink = uiState.totalUplink,
+            totalDownlink = uiState.totalDownlink,
+            onToggle = { onAction(MainAction.ToggleService) },
+            onTest = { onAction(MainAction.TestCurrentServer) },
+            onAutoOptimize = { onAction(MainAction.AutoOptimize) },
+            onCancelAutoOptimize = { onAction(MainAction.CancelAutoOptimize) }
+        )
+    }
+}
+
+@Composable
+private fun ConfigsTab(
+    mainViewModel: MainViewModel,
+    groups: List<com.cr.tunnel.dto.GroupMapItem>,
+    selectedGuid: String?,
+    doubleColumnDisplay: Boolean,
+    confirmRemove: Boolean,
+    searchQuery: String,
+    pagerState: androidx.compose.foundation.pager.PagerState,
+    lazyListStates: androidx.compose.runtime.mutableStateMapOf<String, LazyListState>,
+    lazyGridStates: androidx.compose.runtime.mutableStateMapOf<String, LazyGridState>,
+    scope: androidx.compose.runtime.CoroutineScope,
+    onAction: (MainAction) -> Unit,
+    shareTarget: (String, ProfileItem, Boolean) -> Unit,
+    removeServer: (String) -> Unit
+) {
+    if (groups.isEmpty()) return
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        if (groups.size > 1) {
+            GroupTabBar(
+                groups = groups,
+                selectedTabIndex = pagerState.currentPage.coerceIn(0, groups.lastIndex),
+                mainViewModel = mainViewModel,
+                onTabClick = { targetIndex ->
+                    scope.launch {
+                        pagerState.navigateToPageOptimized(
+                            targetPage = targetIndex,
+                            animateAdjacentPage = true
+                        )
+                    }
                 }
             )
         }
-    ) {
-        Scaffold(
-            contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
-            topBar = {
-                MainTopBar(
-                    isLoading = isLoading,
-                    showSearch = showSearch,
-                    searchQuery = searchQuery,
-                    onSearchQueryChange = { query: String ->
-                        searchQuery = query
-                        onAction(MainAction.Search(query))
-                    },
-                    onSearchClose = {
-                        searchQuery = ""
-                        onAction(MainAction.Search(""))
-                        showSearch = false
-                    },
-                    onSearchToggle = { show: Boolean -> showSearch = show },
-                    onMenuClick = { scope.launch { drawerState.open() } },
-                    onAction = onAction,
-                    onMoreMenuAction = { action ->
-                        when (action) {
-                            MainMoreMenuAction.AutoOptimize -> onAction(MainAction.AutoOptimize)
-                            MainMoreMenuAction.RestartService -> onAction(MainAction.RestartService)
-                            MainMoreMenuAction.DeleteAll -> showDelAllConfirm = true
-                            MainMoreMenuAction.DeleteDuplicate -> showDelDuplicateConfirm = true
-                            MainMoreMenuAction.DeleteInvalid -> showDelInvalidConfirm = true
-                            MainMoreMenuAction.ExportAll -> onAction(MainAction.ExportAll)
-                            MainMoreMenuAction.LocateSelected -> onAction(MainAction.LocateSelectedServer)
-                            MainMoreMenuAction.SortByTestResults -> onAction(MainAction.SortByTestResults)
-                            MainMoreMenuAction.TestAll -> onAction(MainAction.TestAllServers)
-                            MainMoreMenuAction.TestAllRealPing -> onAction(MainAction.TestRealAllServers)
-                            MainMoreMenuAction.UpdateSubscriptions -> onAction(MainAction.UpdateSubscriptions)
-                        }
-                    }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            userScrollEnabled = true,
+            beyondViewportPageCount = 1,
+            key = { page -> groups.getOrNull(page)?.id ?: "group-page-$page" }
+        ) { page ->
+            val group = groups.getOrNull(page) ?: return@HorizontalPager
+
+            GroupPagerPage(
+                groupId = group.id,
+                mainViewModel = mainViewModel,
+                selectedGuid = selectedGuid,
+                doubleColumnDisplay = doubleColumnDisplay,
+                confirmRemove = confirmRemove,
+                searchQuery = searchQuery,
+                lazyListStates = lazyListStates,
+                lazyGridStates = lazyGridStates,
+                onSelectServer = { guid -> onAction(MainAction.SelectServer(guid)) },
+                onEditServer = { guid, profile -> onAction(MainAction.EditServer(guid, profile)) },
+                onShareServer = { guid, profile -> shareTarget(guid, profile, false) },
+                onMoreServer = { guid, profile -> shareTarget(guid, profile, true) },
+                onRemoveServer = removeServer,
+                contentPadding = PaddingValues(
+                    start = 0.dp,
+                    top = 0.dp,
+                    end = 0.dp,
+                    bottom = 8.dp
                 )
-            },
-            bottomBar = {
-                MainBottomBar(
-                    selectedTab = selectedTab,
-                    onTabSelected = { tab ->
-                        if (tab == selectedTab) return@MainBottomBar
-                        selectedTab = tab
-                        if (tab != MainTab.Home) {
-                            scope.launch { drawerState.close() }
-                        }
-                    }
-                )
-            },
-            floatingActionButton = {},
-        ) { innerPadding ->
-            val layoutDirection = LocalLayoutDirection.current
-
-            when (selectedTab) {
-                MainTab.Home -> {
-                    if (groups.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
-                            if (uiState.isAutoOptimizing) {
-                                OptimizeBanner(onCancel = { onAction(MainAction.CancelAutoOptimize) })
-                            }
-                            ConnectionSection(
-                                displayText = displayText,
-                                isRunning = isRunning,
-                                isAutoOptimizing = uiState.isAutoOptimizing,
-                                isDarkTheme = isDarkTheme,
-                                connectedAtMs = uiState.connectedAtMs,
-                                uplinkSpeed = uiState.uplinkSpeed,
-                                downlinkSpeed = uiState.downlinkSpeed,
-                                totalUplink = uiState.totalUplink,
-                                totalDownlink = uiState.totalDownlink,
-                                onToggle = { onAction(MainAction.ToggleService) },
-                                onTest = { onAction(MainAction.TestCurrentServer) },
-                                onAutoOptimize = { onAction(MainAction.AutoOptimize) },
-                                onCancelAutoOptimize = { onAction(MainAction.CancelAutoOptimize) }
-                            )
-                            if (groups.size > 1) {
-                                GroupTabBar(
-                                    groups = groups,
-                                    selectedTabIndex = pagerState.currentPage.coerceIn(0, groups.lastIndex),
-                                    mainViewModel = mainViewModel,
-                                    onTabClick = { targetIndex ->
-                                        scope.launch {
-                                            pagerState.navigateToPageOptimized(
-                                                targetPage = targetIndex,
-                                                animateAdjacentPage = true
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-
-                            HorizontalPager(
-                                state = pagerState,
-                                modifier = Modifier.fillMaxSize(),
-                                userScrollEnabled = true,
-                                beyondViewportPageCount = 1,
-                                key = { page -> groups.getOrNull(page)?.id ?: "group-page-$page" }
-                            ) { page ->
-                                val group = groups.getOrNull(page) ?: return@HorizontalPager
-
-                                GroupPagerPage(
-                                    groupId = group.id,
-                                    mainViewModel = mainViewModel,
-                                    selectedGuid = selectedGuid,
-                                    doubleColumnDisplay = doubleColumnDisplay,
-                                    confirmRemove = confirmRemove,
-                                    searchQuery = searchQuery,
-                                    lazyListStates = lazyListStates,
-                                    lazyGridStates = lazyGridStates,
-                                    onSelectServer = { guid -> onAction(MainAction.SelectServer(guid)) },
-                                    onEditServer = { guid, profile -> onAction(MainAction.EditServer(guid, profile)) },
-                                    onShareServer = { guid, profile ->
-                                        shareTarget = Triple(guid, profile, false)
-                                    },
-                                    onMoreServer = { guid, profile ->
-                                        shareTarget = Triple(guid, profile, true)
-                                    },
-                                    onRemoveServer = removeServer,
-                                    contentPadding = PaddingValues(
-                                        start = 0.dp,
-                                        top = 0.dp,
-                                        end = 0.dp,
-                                        bottom = 8.dp
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-
-                MainTab.Configs -> {
-                    if (groups.isNotEmpty()) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding)
-                        ) {
-                            if (groups.size > 1) {
-                                GroupTabBar(
-                                    groups = groups,
-                                    selectedTabIndex = pagerState.currentPage.coerceIn(0, groups.lastIndex),
-                                    mainViewModel = mainViewModel,
-                                    onTabClick = { targetIndex ->
-                                        scope.launch {
-                                            pagerState.navigateToPageOptimized(
-                                                targetPage = targetIndex,
-                                                animateAdjacentPage = true
-                                            )
-                                        }
-                                    }
-                                )
-                            }
-
-                            HorizontalPager(
-                                state = pagerState,
-                                modifier = Modifier.fillMaxSize(),
-                                userScrollEnabled = true,
-                                beyondViewportPageCount = 1,
-                                key = { page -> groups.getOrNull(page)?.id ?: "group-page-$page" }
-                            ) { page ->
-                                val group = groups.getOrNull(page) ?: return@HorizontalPager
-
-                                GroupPagerPage(
-                                    groupId = group.id,
-                                    mainViewModel = mainViewModel,
-                                    selectedGuid = selectedGuid,
-                                    doubleColumnDisplay = doubleColumnDisplay,
-                                    confirmRemove = confirmRemove,
-                                    searchQuery = searchQuery,
-                                    lazyListStates = lazyListStates,
-                                    lazyGridStates = lazyGridStates,
-                                    onSelectServer = { guid -> onAction(MainAction.SelectServer(guid)) },
-                                    onEditServer = { guid, profile -> onAction(MainAction.EditServer(guid, profile)) },
-                                    onShareServer = { guid, profile ->
-                                        shareTarget = Triple(guid, profile, false)
-                                    },
-                                    onMoreServer = { guid, profile ->
-                                        shareTarget = Triple(guid, profile, true)
-                                    },
-                                    onRemoveServer = removeServer,
-                                    contentPadding = PaddingValues(
-                                        start = 0.dp,
-                                        top = 0.dp,
-                                        end = 0.dp,
-                                        bottom = 8.dp
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-
-                MainTab.Stats -> {
-                    StatsPage(
-                        isRunning = isRunning,
-                        uplinkSpeed = uiState.uplinkSpeed,
-                        downlinkSpeed = uiState.downlinkSpeed,
-                        totalUplink = uiState.totalUplink,
-                        totalDownlink = uiState.totalDownlink,
-                        connectedAtMs = uiState.connectedAtMs,
-                        statusText = displayText,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-
-                MainTab.Settings -> {
-                    SettingsPage(
-                        onNavigate = onNavigate,
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            )
         }
     }
 }

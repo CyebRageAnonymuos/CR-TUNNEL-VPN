@@ -34,7 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +58,6 @@ import com.cr.tunnel.dto.entities.ProfileItem
 import com.cr.tunnel.dto.entities.ServersCache
 import com.cr.tunnel.extension.isComplexType
 import com.cr.tunnel.extension.nullIfBlank
-import com.cr.tunnel.handler.CountryResolver
 import com.cr.tunnel.handler.AngConfigManager
 import com.cr.tunnel.handler.MmkvManager
 import com.cr.tunnel.ui.compose.ItemDivider
@@ -74,7 +72,6 @@ import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyGridState
 import sh.calvin.reorderable.rememberReorderableLazyListState
 import kotlin.math.abs
-import kotlinx.coroutines.delay
 
 @Composable
 fun GroupPagerPage(
@@ -259,21 +256,6 @@ private fun ServerItemRow(
             ?.toString() ?: ""
     } else ""
 
-    var countryFlag by remember(serverCache.guid) {
-        mutableStateOf(CountryResolver.getCountryCode(serverCache.guid).let { CountryResolver.flagEmoji(it) })
-    }
-    LaunchedEffect(serverCache.guid) {
-        while (countryFlag.isBlank()) {
-            var resolved = false
-            CountryResolver.resolve(serverCache.guid, profile) { code ->
-                countryFlag = CountryResolver.flagEmoji(code)
-                resolved = true
-            }
-            if (resolved) break
-            delay(4000)
-        }
-    }
-
     ServerListItem(
         remarks = profile.remarks,
         statistics = profile.description.nullIfBlank()
@@ -283,7 +265,6 @@ private fun ServerItemRow(
         testDelayMillis = serverCache.testDelayMillis,
         isSelected = serverCache.guid == selectedGuid,
         subscriptionRemarks = subRemarks,
-        countryFlag = countryFlag,
         doubleColumnDisplay = false,
         onClick = { onSelectServer(serverCache.guid) },
         onShare = { onShareServer(serverCache.guid, profile) },
@@ -309,20 +290,7 @@ private fun ServerItemColumn(
     val subRemarks = if (subscriptionId.isEmpty()) {
         MmkvManager.decodeSubscription(profile.subscriptionId)?.remarks?.firstOrNull()?.toString() ?: ""
     } else ""
-    var countryFlag by remember(serverCache.guid) {
-        mutableStateOf(CountryResolver.getCountryCode(serverCache.guid).let { CountryResolver.flagEmoji(it) })
-    }
-    LaunchedEffect(serverCache.guid) {
-        while (countryFlag.isBlank()) {
-            var resolved = false
-            CountryResolver.resolve(serverCache.guid, profile) { code ->
-                countryFlag = CountryResolver.flagEmoji(code)
-                resolved = true
-            }
-            if (resolved) break
-            delay(4000)
-        }
-    }
+
     Column {
         ServerListItem(
             remarks = profile.remarks,
@@ -332,7 +300,6 @@ private fun ServerItemColumn(
             testDelayMillis = serverCache.testDelayMillis,
             isSelected = serverCache.guid == selectedGuid,
             subscriptionRemarks = subRemarks,
-            countryFlag = countryFlag,
             doubleColumnDisplay = doubleColumnDisplay,
             onClick = { onSelectServer(serverCache.guid) },
             onEdit = { onEditServer(serverCache.guid, profile) },
@@ -353,7 +320,6 @@ fun ServerListItem(
     testDelayMillis: Long,
     isSelected: Boolean,
     subscriptionRemarks: String,
-    countryFlag: String = "",
     doubleColumnDisplay: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
@@ -445,14 +411,6 @@ fun ServerListItem(
                 .padding(start = 8.dp, end = 12.dp, top = 10.dp, bottom = 10.dp)
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                if (countryFlag.isNotBlank()) {
-                    Text(
-                        text = countryFlag,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontSize = 18.sp,
-                        modifier = Modifier.padding(end = 8.dp)
-                    )
-                }
                 Text(
                     remarks,
                     Modifier.weight(1f),

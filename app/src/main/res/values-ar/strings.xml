@@ -542,4 +542,30 @@
     <string name="connection_test_empty_message">لا تتوفر تفاصيل</string>
     <string name="value_unknown">غير معروف</string>
 
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_configs">الإعدادات</string>
+    <string name="nav_stats">الإحصائيات</string>
+    <string name="nav_settings">الإعدادات</string>
+    <string name="stats_session_title">الجلسة</string>
+    <string name="stats_total_title">الإجمالي</string>
+    <string name="stats_uplink">الرفع</string>
+    <string name="stats_downlink">التنزيل</string>
+    <string name="stats_speed">السرعة</string>
+    <string name="stats_uptime">مدة التشغيل</string>
+    <string name="stats_status">الحالة</string>
+    <string name="stats_connected">متصل</string>
+    <string name="stats_disconnected">غير متصل</string>
+    <string name="stats_quick_actions">إجراءات سريعة</string>
+    <string name="stats_open_settings">فتح الإعدادات</string>
+    <string name="stats_subscriptions">الاشتراكات</string>
+    <string name="stats_per_app_proxy">وكيل لكل تطبيق</string>
+    <string name="stats_routing">التوجيه</string>
+    <string name="stats_about">حول</string>
+    <string name="stats_backup_restore">النسخ الاحتياطي والاستعادة</string>
+    <string name="stats_check_update">التحقق من التحديث</string>
+    <string name="stats_logcat">سجل النظام</string>
+    <string name="status_protected">محمي</string>
+    <string name="status_secure">الاتصال آمن</string>
+    <string name="status_not_protected">غير متصل</string>
+    <string name="status_tap_connect">اضغط للاتصال</string>
 </resources>

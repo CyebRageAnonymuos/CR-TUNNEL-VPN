@@ -542,4 +542,30 @@
     <string name="connection_test_empty_message">подробности отсутствуют</string>
     <string name="value_unknown">неизвестно</string>
 
+    <string name="nav_home">Главная</string>
+    <string name="nav_configs">Конфиги</string>
+    <string name="nav_stats">Статистика</string>
+    <string name="nav_settings">Настройки</string>
+    <string name="stats_session_title">Сессия</string>
+    <string name="stats_total_title">Всего</string>
+    <string name="stats_uplink">Исходящий</string>
+    <string name="stats_downlink">Входящий</string>
+    <string name="stats_speed">Скорость</string>
+    <string name="stats_uptime">Время работы</string>
+    <string name="stats_status">Статус</string>
+    <string name="stats_connected">Подключено</string>
+    <string name="stats_disconnected">Отключено</string>
+    <string name="stats_quick_actions">Быстрые действия</string>
+    <string name="stats_open_settings">Открыть настройки</string>
+    <string name="stats_subscriptions">Подписки</string>
+    <string name="stats_per_app_proxy">Прокси для приложений</string>
+    <string name="stats_routing">Маршрутизация</string>
+    <string name="stats_about">О программе</string>
+    <string name="stats_backup_restore">Резервное копирование</string>
+    <string name="stats_check_update">Проверить обновление</string>
+    <string name="stats_logcat">Журнал</string>
+    <string name="status_protected">Защищено</string>
+    <string name="status_secure">Соединение защищено</string>
+    <string name="status_not_protected">Не подключено</string>
+    <string name="status_tap_connect">Нажмите для подключения</string>
 </resources>
