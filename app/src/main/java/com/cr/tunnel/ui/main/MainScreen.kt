@@ -34,7 +34,6 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SnapshotStateMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -362,8 +361,8 @@ private fun ConfigsTab(
     confirmRemove: Boolean,
     searchQuery: String,
     pagerState: androidx.compose.foundation.pager.PagerState,
-    lazyListStates: SnapshotStateMap<String, LazyListState>,
-    lazyGridStates: SnapshotStateMap<String, LazyGridState>,
+    lazyListStates: MutableMap<String, LazyListState>,
+    lazyGridStates: MutableMap<String, LazyGridState>,
     scope: CoroutineScope,
     onAction: (MainAction) -> Unit,
     shareTarget: (String, ProfileItem, Boolean) -> Unit,
