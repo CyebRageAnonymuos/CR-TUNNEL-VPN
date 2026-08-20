@@ -305,7 +305,7 @@ private fun ConnectionCircle(
     Box(
         modifier = Modifier
             .size(190.dp)
-            .graphicsLayer { rotationZ = rotation },
+            .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
         // Static base ring
@@ -336,10 +336,11 @@ private fun ConnectionCircle(
                 }
         )
 
-        // Rotating conic ring
+        // Rotating comet ring (only this layer rotates)
         Box(
             modifier = Modifier
                 .size(190.dp)
+                .graphicsLayer { rotationZ = rotation }
                 .drawWithCache {
                     val stroke = 3.dp.toPx()
                     val inset = 1.dp.toPx()
@@ -368,10 +369,10 @@ private fun ConnectionCircle(
                 }
         )
 
-        // Expanding pulse rings
+        // Expanding pulse rings while running
         if (isRunning) {
-            val pulseScale = 1f + pulse * 0.5f
-            val pulseAlpha = (1f - pulse) * 0.55f
+            val pulseScale = 1f + pulse * 0.4f
+            val pulseAlpha = (1f - pulse) * 0.45f
             Box(
                 modifier = Modifier
                     .size(190.dp)
@@ -380,112 +381,112 @@ private fun ConnectionCircle(
                         scaleY = pulseScale
                         alpha = pulseAlpha
                     }
-                    .border(2.dp, glowColor.copy(alpha = 0.7f), CircleShape)
+                    .border(2.dp, glowColor.copy(alpha = 0.6f), CircleShape)
             )
             Box(
                 modifier = Modifier
                     .size(190.dp)
                     .graphicsLayer {
-                        scaleX = pulseScale + 0.2f
-                        scaleY = pulseScale + 0.2f
+                        scaleX = pulseScale + 0.15f
+                        scaleY = pulseScale + 0.15f
                         alpha = pulseAlpha * 0.5f
                     }
-                    .border(1.5.dp, NeonPurple.copy(alpha = 0.6f), CircleShape)
+                    .border(1.5.dp, NeonPurple.copy(alpha = 0.5f), CircleShape)
             )
         }
-    }
 
-    Box(
-        modifier = Modifier
-            .size(170.dp)
-            .graphicsLayer {
-                scaleX = breath
-                scaleY = breath
-            }
-            .padding(22.dp)
-            .clip(CircleShape)
-            .background(
-                if (isDarkTheme) {
-                    Brush.linearGradient(
-                        listOf(
-                            Color(0xFF2A3A6E).copy(alpha = 0.45f),
-                            Color(0xFF101830).copy(alpha = 0.85f)
-                        )
-                    )
-                } else {
-                    Brush.linearGradient(
-                        listOf(
-                            Color.White.copy(alpha = 0.85f),
-                            Color(0xFFDFF2FF).copy(alpha = 0.75f)
-                        )
-                    )
+        // Main glass body
+        Box(
+            modifier = Modifier
+                .size(170.dp)
+                .graphicsLayer {
+                    scaleX = breath
+                    scaleY = breath
                 }
-            )
-            .drawWithCache {
-                val highlightBrush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = if (isDarkTheme) 0.08f else 0.30f),
-                        Color.Transparent
+                .padding(22.dp)
+                .clip(CircleShape)
+                .background(
+                    if (isDarkTheme) {
+                        Brush.linearGradient(
+                            listOf(
+                                Color(0xFF2A3A6E).copy(alpha = 0.45f),
+                                Color(0xFF101830).copy(alpha = 0.85f)
+                            )
+                        )
+                    } else {
+                        Brush.linearGradient(
+                            listOf(
+                                Color.White.copy(alpha = 0.85f),
+                                Color(0xFFDFF2FF).copy(alpha = 0.75f)
+                            )
+                        )
+                    }
+                )
+                .drawWithCache {
+                    val highlightBrush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = if (isDarkTheme) 0.08f else 0.30f),
+                            Color.Transparent
+                        ),
+                        startY = 0f,
+                        endY = size.height * 0.45f
+                    )
+                    val edgeBrush = Brush.linearGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = if (isRunning) 0.55f else 0.30f),
+                            glassCyan.copy(alpha = 0.35f),
+                            Color.White.copy(alpha = 0.15f)
+                        )
+                    )
+                    onDrawBehind {
+                        drawRoundRect(
+                            brush = highlightBrush,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(85.dp.toPx(), 85.dp.toPx())
+                        )
+                        drawRoundRect(
+                            brush = edgeBrush,
+                            cornerRadius = androidx.compose.ui.geometry.CornerRadius(85.dp.toPx(), 85.dp.toPx()),
+                            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.dp.toPx())
+                        )
+                    }
+                }
+                .border(
+                    1.dp,
+                    Brush.linearGradient(
+                        listOf(glowColor.copy(alpha = if (isRunning) 0.8f else 0.4f), NeonPurple.copy(alpha = 0.3f))
                     ),
-                    startY = 0f,
-                    endY = size.height * 0.45f
-                )
-                val edgeBrush = Brush.linearGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = if (isRunning) 0.55f else 0.30f),
-                        glassCyan.copy(alpha = 0.35f),
-                        Color.White.copy(alpha = 0.15f)
+                    CircleShape
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isRunning) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = stringResource(R.string.connected_status),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = colorPing,
+                        fontFamily = FontFamily.Serif,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp,
+                        letterSpacing = 1.5.sp
                     )
-                )
-                onDrawBehind {
-                    drawRoundRect(
-                        brush = highlightBrush,
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(85.dp.toPx(), 85.dp.toPx())
-                    )
-                    drawRoundRect(
-                        brush = edgeBrush,
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(85.dp.toPx(), 85.dp.toPx()),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 1.dp.toPx())
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(
+                        text = formatElapsed(elapsedSeconds),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 11.sp
                     )
                 }
-            }
-            .border(
-                1.dp,
-                Brush.linearGradient(
-                    listOf(glowColor.copy(alpha = if (isRunning) 0.8f else 0.4f), NeonPurple.copy(alpha = 0.3f))
-                ),
-                CircleShape
-            )
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        if (isRunning) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = stringResource(R.string.connected_status),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = colorPing,
-                    fontFamily = FontFamily.Serif,
-                    fontStyle = FontStyle.Italic,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp,
-                    letterSpacing = 1.5.sp
-                )
-                Spacer(modifier = Modifier.height(3.dp))
-                Text(
-                    text = formatElapsed(elapsedSeconds),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 11.sp
+            } else {
+                Icon(
+                    painter = painterResource(R.drawable.ic_play_24dp),
+                    contentDescription = stringResource(R.string.acc_start),
+                    tint = NeonCyan,
+                    modifier = Modifier.size(48.dp)
                 )
             }
-        } else {
-            Icon(
-                painter = painterResource(R.drawable.ic_play_24dp),
-                contentDescription = stringResource(R.string.acc_start),
-                tint = NeonCyan,
-                modifier = Modifier.size(48.dp)
-            )
         }
     }
 }

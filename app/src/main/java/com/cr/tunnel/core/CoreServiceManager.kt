@@ -277,15 +277,31 @@ object CoreServiceManager {
     }
 
     /**
-     * Queries and resets all outbound traffic counters in one core call.
-     * Reads cumulative counters for every outbound tag from the current config.
+     * Queries all outbound traffic counters.
+     * Uses the Go-side bulk query (known to work) and supplements any tags it
+     * misses by reading them individually with queryStats.
      */
     fun queryAllOutboundTrafficStats(): List<OutboundTrafficStat> {
         // The stats manager is gone once the core stops, querying it then reaches into freed state.
         if (!isRunning()) return emptyList()
 
         val result = ArrayList<OutboundTrafficStat>()
+
+        // 1) Bulk query from the core (Go side format: tag,direction,value;tag,direction,value;)
+        runCatching {
+            coreController.queryAllOutboundTrafficStats().split(';').forEach { entry ->
+                if (entry.isBlank()) return@forEach
+                val parts = entry.split(',', limit = 3)
+                if (parts.size != 3) return@forEach
+                val value = parts[2].toLongOrNull() ?: return@forEach
+                result.add(OutboundTrafficStat(tag = parts[0], direction = parts[1], value = value))
+            }
+        }
+
+        // 2) Fill any tags the bulk query did not cover, using the direct per-tag query.
+        val coveredTags = result.mapTo(mutableSetOf()) { it.tag }
         for (tag in currentOutboundTags) {
+            if (tag in coveredTags) continue
             val uplink = queryOutboundTraffic(tag, AppConfig.UPLINK)
             val downlink = queryOutboundTraffic(tag, AppConfig.DOWNLINK)
             if (uplink > 0) {
@@ -295,15 +311,19 @@ object CoreServiceManager {
                 result.add(OutboundTrafficStat(tag = tag, direction = AppConfig.DOWNLINK, value = downlink))
             }
         }
+
         return result
     }
 
     /**
      * Reads the cumulative traffic counter for a single outbound tag and direction.
+     * Returns 0 when the counter does not exist instead of logging an error.
      */
     private fun queryOutboundTraffic(tag: String, direction: String): Long {
         return try {
-            coreController.queryStats("outbound>>>$tag>>>traffic>>>$direction", "value").coerceAtLeast(0L)
+            coreController.queryStats("outbound>>>$tag>>>traffic>>>$direction", "value")
+                .takeIf { it > 0 }
+                ?: 0L
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Failed to query traffic stats for $tag/$direction", e)
             0L
