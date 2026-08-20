@@ -325,12 +325,17 @@ private fun HomeTab(
     isDarkTheme: Boolean,
     onAction: (MainAction) -> Unit
 ) {
-    Column(
+    Box(
         modifier = Modifier
-            .fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .fillMaxSize()
     ) {
+        AnimatedHomeBackground(isDarkTheme = isDarkTheme)
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
         if (uiState.isAutoOptimizing) {
             OptimizeBanner(onCancel = { onAction(MainAction.CancelAutoOptimize) })
         }
@@ -349,6 +354,7 @@ private fun HomeTab(
             onAutoOptimize = { onAction(MainAction.AutoOptimize) },
             onCancelAutoOptimize = { onAction(MainAction.CancelAutoOptimize) }
         )
+        }
     }
 }
 
