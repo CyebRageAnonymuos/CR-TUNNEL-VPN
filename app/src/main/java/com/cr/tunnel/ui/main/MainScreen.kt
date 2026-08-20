@@ -34,6 +34,7 @@ import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SnapshotStateMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -54,6 +55,7 @@ import com.cr.tunnel.R
 import com.cr.tunnel.dto.entities.ProfileItem
 import com.cr.tunnel.ui.compose.LocalDarkTheme
 import com.cr.tunnel.ui.compose.QRCodeDialog
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -360,9 +362,9 @@ private fun ConfigsTab(
     confirmRemove: Boolean,
     searchQuery: String,
     pagerState: androidx.compose.foundation.pager.PagerState,
-    lazyListStates: androidx.compose.runtime.mutableStateMapOf<String, LazyListState>,
-    lazyGridStates: androidx.compose.runtime.mutableStateMapOf<String, LazyGridState>,
-    scope: androidx.compose.runtime.CoroutineScope,
+    lazyListStates: SnapshotStateMap<String, LazyListState>,
+    lazyGridStates: SnapshotStateMap<String, LazyGridState>,
+    scope: CoroutineScope,
     onAction: (MainAction) -> Unit,
     shareTarget: (String, ProfileItem, Boolean) -> Unit,
     removeServer: (String) -> Unit
