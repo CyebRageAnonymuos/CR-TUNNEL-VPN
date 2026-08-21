@@ -1,10 +1,13 @@
 package com.cr.tunnel.ui.main
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
@@ -45,6 +48,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -336,10 +340,18 @@ private fun HomeTab(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-        if (uiState.isAutoOptimizing) {
-            OptimizeBanner(onCancel = { onAction(MainAction.CancelAutoOptimize) })
-        }
-        ConnectionSection(
+            AnimatedVisibility(
+                visible = uiState.isAutoOptimizing,
+                enter = expandVertically(
+                    animationSpec = tween(280, easing = FastOutSlowInEasing)
+                ) + fadeIn(tween(280)),
+                exit = shrinkVertically(
+                    animationSpec = tween(220, easing = FastOutSlowInEasing)
+                ) + fadeOut(tween(220))
+            ) {
+                OptimizeBanner(onCancel = { onAction(MainAction.CancelAutoOptimize) })
+            }
+            ConnectionSection(
             displayText = displayText,
             isRunning = uiState.isRunning,
             isAutoOptimizing = uiState.isAutoOptimizing,
@@ -433,9 +445,8 @@ private fun ConfigsTab(
 fun OptimizeBanner(onCancel: () -> Unit) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .clip(RoundedCornerShape(16.dp))
+            .padding(horizontal = 16.dp, vertical = 6.dp)
+            .clip(RoundedCornerShape(50))
             .background(
                 Brush.linearGradient(
                     colors = listOf(
@@ -444,39 +455,32 @@ fun OptimizeBanner(onCancel: () -> Unit) {
                     )
                 )
             )
-            .border(1.dp, Color(0x6600E5FF), RoundedCornerShape(16.dp))
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+            .border(1.dp, Color(0x5500E5FF), RoundedCornerShape(50))
+            .padding(start = 14.dp, end = 4.dp, top = 5.dp, bottom = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .background(
-                        Color(0xFF00E5FF),
-                        CircleShape
-                    )
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = stringResource(R.string.menu_auto_optimize),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color(0xFF00E5FF)
-                )
-                Text(
-                    text = stringResource(R.string.optimizing_status),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFA8B8D0)
-                )
-            }
-        }
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(Color(0xFF00E5FF), CircleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
-            text = stringResource(R.string.menu_auto_optimize_cancel),
+            text = stringResource(R.string.menu_auto_optimize),
             style = MaterialTheme.typography.labelMedium,
-            color = Color(0xFFA855F7),
-            modifier = Modifier.clickable(onClick = onCancel)
+            color = Color(0xFF00E5FF),
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Icon(
+            painter = painterResource(R.drawable.ic_close_24dp),
+            contentDescription = stringResource(R.string.menu_auto_optimize_cancel),
+            tint = Color(0xFFA8B8D0),
+            modifier = Modifier
+                .size(26.dp)
+                .clip(CircleShape)
+                .clickable(onClick = onCancel)
+                .padding(5.dp)
         )
     }
 }

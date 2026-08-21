@@ -568,4 +568,16 @@
     <string name="status_secure">الاتصال آمن</string>
     <string name="status_not_protected">غير متصل</string>
     <string name="status_tap_connect">اضغط للاتصال</string>
+    <string name="menu_auto_optimize">تحسين تلقائي</string>
+    <string name="menu_auto_optimize_cancel">إلغاء التحسين</string>
+    <string name="menu_import_config">استيراد الإعدادات</string>
+    <string name="menu_more">المزيد</string>
+    <string name="optimizing_status">يقوم CR TUNNEL باختبار جميع الإعدادات للعثور على الأسرع…</string>
+    <string name="optimize_no_best_server">لم يتم العثور على إعدادات قابلة للوصول. تحقق من إعداداتك وحاول مرة أخرى.</string>
+    <string name="optimize_best_selected">تم اختيار أفضل إعداد: %s</string>
+    <string name="protected_title">أنت محمي</string>
+    <string name="protected_subtitle">اتصالك آمن</string>
+    <string name="auto_connect_label">اتصال تلقائي</string>
+    <string name="connection_quality_excellent">اتصال ممتاز</string>
+    <string name="connected_status">متصل</string>
 </resources>

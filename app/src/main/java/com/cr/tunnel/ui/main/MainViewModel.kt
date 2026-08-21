@@ -52,8 +52,6 @@ class MainViewModel(
     private var lastTrafficQueryTime = 0L
     private var totalTrafficUplink = 0L
     private var totalTrafficDownlink = 0L
-    private var lastTrafficUplink = 0L
-    private var lastTrafficDownlink = 0L
 
     private var autoOptimizePending = false
     private var autoConnectBestServers = false
@@ -157,16 +155,13 @@ init {
 
             is MainServiceEvent.TrafficStats -> {
                 val now = System.currentTimeMillis()
-                val deltaUp = if (event.uplink >= lastTrafficUplink) event.uplink - lastTrafficUplink else event.uplink
-                val deltaDown = if (event.downlink >= lastTrafficDownlink) event.downlink - lastTrafficDownlink else event.downlink
-                totalTrafficUplink += deltaUp
-                totalTrafficDownlink += deltaDown
                 val elapsedSec = ((now - lastTrafficQueryTime).coerceAtLeast(0L)) / 1000.0
-                lastTrafficUplink = event.uplink
-                lastTrafficDownlink = event.downlink
                 lastTrafficQueryTime = now
-                val upSpeed = if (elapsedSec > 0) (deltaUp / elapsedSec).toLong() else deltaUp
-                val downSpeed = if (elapsedSec > 0) (deltaDown / elapsedSec).toLong() else deltaDown
+                // The service sends ready-made per-second deltas; just accumulate them.
+                totalTrafficUplink += event.uplink.coerceAtLeast(0L)
+                totalTrafficDownlink += event.downlink.coerceAtLeast(0L)
+                val upSpeed = if (elapsedSec > 0) (event.uplink / elapsedSec).toLong() else event.uplink
+                val downSpeed = if (elapsedSec > 0) (event.downlink / elapsedSec).toLong() else event.downlink
                 _uiState.update { state ->
                     state.copy(
                         uplinkSpeed = formatSpeed(upSpeed),
@@ -848,8 +843,6 @@ init {
         if (running) {
             totalTrafficUplink = 0L
             totalTrafficDownlink = 0L
-            lastTrafficUplink = 0L
-            lastTrafficDownlink = 0L
             lastTrafficQueryTime = System.currentTimeMillis()
         }
     }

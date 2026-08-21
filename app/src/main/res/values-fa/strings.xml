@@ -570,4 +570,14 @@
     <string name="status_secure">اتصال امن</string>
     <string name="status_not_protected">متصل نیست</string>
     <string name="status_tap_connect">برای اتصال لمس کنید</string>
+    <string name="menu_auto_optimize">بهینه‌سازی خودکار</string>
+    <string name="menu_auto_optimize_cancel">لغو بهینه‌سازی</string>
+    <string name="optimizing_status">CR TUNNEL در حال تست همه کانفیگ‌ها برای یافتن سریع‌ترین است…</string>
+    <string name="optimize_no_best_server">هیچ کانفیگ قابل دسترسی پیدا نشد. کانفیگ‌هایتان را بررسی و دوباره تلاش کنید.</string>
+    <string name="optimize_best_selected">بهترین کانفیگ انتخاب شد: %s</string>
+    <string name="protected_title">شما محافظت می‌شوید</string>
+    <string name="protected_subtitle">اتصال شما امن است</string>
+    <string name="auto_connect_label">اتصال خودکار</string>
+    <string name="connection_quality_excellent">اتصال عالی</string>
+    <string name="connected_status">متصل</string>
 </resources>

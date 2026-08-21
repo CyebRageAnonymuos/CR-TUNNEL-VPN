@@ -568,4 +568,16 @@
     <string name="status_secure">連線安全</string>
     <string name="status_not_protected">未連線</string>
     <string name="status_tap_connect">點擊連接</string>
+    <string name="menu_auto_optimize">自動最佳化</string>
+    <string name="menu_auto_optimize_cancel">取消最佳化</string>
+    <string name="menu_import_config">匯入設定檔</string>
+    <string name="menu_more">更多</string>
+    <string name="optimizing_status">CR TUNNEL 正在測試所有設定檔以找出最快的…</string>
+    <string name="optimize_no_best_server">找不到可用的設定檔。請檢查您的設定檔後再試一次。</string>
+    <string name="optimize_best_selected">已選擇最佳設定檔:%s</string>
+    <string name="protected_title">您已受保護</string>
+    <string name="protected_subtitle">您的連線安全</string>
+    <string name="auto_connect_label">自動連線</string>
+    <string name="connection_quality_excellent">極佳連線</string>
+    <string name="connected_status">已連線</string>
 </resources>

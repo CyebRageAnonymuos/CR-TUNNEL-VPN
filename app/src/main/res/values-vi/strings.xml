@@ -568,4 +568,16 @@
     <string name="status_secure">Kết nối an toàn</string>
     <string name="status_not_protected">Chưa kết nối</string>
     <string name="status_tap_connect">Chạm để kết nối</string>
+    <string name="menu_auto_optimize">Tự động tối ưu</string>
+    <string name="menu_auto_optimize_cancel">Hủy tối ưu</string>
+    <string name="menu_import_config">Nhập cấu hình</string>
+    <string name="menu_more">Thêm</string>
+    <string name="optimizing_status">CR TUNNEL đang kiểm tra tất cả cấu hình để tìm cấu hình nhanh nhất…</string>
+    <string name="optimize_no_best_server">Không tìm thấy cấu hình khả dụng. Hãy kiểm tra lại và thử lần nữa.</string>
+    <string name="optimize_best_selected">Đã chọn cấu hình tốt nhất: %s</string>
+    <string name="protected_title">Bạn được bảo vệ</string>
+    <string name="protected_subtitle">Kết nối của bạn an toàn</string>
+    <string name="auto_connect_label">Tự động kết nối</string>
+    <string name="connection_quality_excellent">Kết nối tuyệt vời</string>
+    <string name="connected_status">ĐÃ KẾT NỐI</string>
 </resources>

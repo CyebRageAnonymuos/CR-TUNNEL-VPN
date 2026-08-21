@@ -568,4 +568,16 @@
     <string name="status_secure">সংযোগ নিরাপদ</string>
     <string name="status_not_protected">সংযুক্ত নয়</string>
     <string name="status_tap_connect">সংযোগ করতে আলতো চাপুন</string>
+    <string name="menu_auto_optimize">অটো অপ্টিমাইজ</string>
+    <string name="menu_auto_optimize_cancel">অপ্টিমাইজ বাতিল করুন</string>
+    <string name="menu_import_config">কনফিগ আমদানি করুন</string>
+    <string name="menu_more">আরও</string>
+    <string name="optimizing_status">CR TUNNEL দ্রুততম কনফিগটি খুঁজে পেতে সব কনফিগ পরীক্ষা করছে…</string>
+    <string name="optimize_no_best_server">কোনো ব্যবহারযোগ্য কনফিগ পাওয়া যায়নি। আপনার কনফিগগুলো দেখে আবার চেষ্টা করুন।</string>
+    <string name="optimize_best_selected">সেরা কনফিগ নির্বাচিত হয়েছে: %s</string>
+    <string name="protected_title">আপনি সুরক্ষিত</string>
+    <string name="protected_subtitle">আপনার সংযোগ সুরক্ষিত</string>
+    <string name="auto_connect_label">অটো কানেক্ট</string>
+    <string name="connection_quality_excellent">চমৎকার সংযোগ</string>
+    <string name="connected_status">সংযুক্ত</string>
 </resources>

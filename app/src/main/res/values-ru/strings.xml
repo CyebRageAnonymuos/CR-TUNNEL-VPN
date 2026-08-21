@@ -568,4 +568,16 @@
     <string name="status_secure">Соединение защищено</string>
     <string name="status_not_protected">Не подключено</string>
     <string name="status_tap_connect">Нажмите для подключения</string>
+    <string name="menu_auto_optimize">Автооптимизация</string>
+    <string name="menu_auto_optimize_cancel">Отменить оптимизацию</string>
+    <string name="menu_import_config">Импорт конфигурации</string>
+    <string name="menu_more">Ещё</string>
+    <string name="optimizing_status">CR TUNNEL проверяет все конфигурации, чтобы найти самую быструю…</string>
+    <string name="optimize_no_best_server">Доступные конфигурации не найдены. Проверьте конфигурации и попробуйте снова.</string>
+    <string name="optimize_best_selected">Выбрана лучшая конфигурация: %s</string>
+    <string name="protected_title">Вы защищены</string>
+    <string name="protected_subtitle">Ваше соединение защищено</string>
+    <string name="auto_connect_label">Автоподключение</string>
+    <string name="connection_quality_excellent">Отличное соединение</string>
+    <string name="connected_status">ПОДКЛЮЧЕНО</string>
 </resources>

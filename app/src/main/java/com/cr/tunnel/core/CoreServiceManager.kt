@@ -176,7 +176,6 @@ object CoreServiceManager {
         if (!isReload) {
             MessageHelper.sendMsg2UI(service, AppConfig.MSG_STATE_START_SUCCESS, "")
         }
-        NotificationManager.startSpeedNotification()
         NotificationManager.startUiTrafficStatsBroadcast()
         LogUtil.i(AppConfig.TAG, "StartCore-Manager: Core started successfully")
     }
@@ -527,7 +526,6 @@ object CoreServiceManager {
 
                 Intent.ACTION_SCREEN_ON -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Screen on")
-                    NotificationManager.startSpeedNotification()
                 }
             }
         }
