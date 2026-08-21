@@ -36,6 +36,20 @@ object NotificationManager {
 
     private var lastQueryTime = 0L
     private val lastCounterValues = HashMap<String, Long>()
+
+    /**
+     * Authoritative session totals, accumulated inside the always-alive service
+     * process and mirrored to the UI as absolute values. Broadcasts may be
+     * dropped while the UI is backgrounded; absolute values make that lossless.
+     */
+    @Volatile
+    var sessionUplink = 0L
+        private set
+
+    @Volatile
+    var sessionDownlink = 0L
+        private set
+
     private var mBuilder: NotificationCompat.Builder? = null
     private var mNotificationManager: NotificationManager? = null
     private var uiTrafficStatsJob: Job? = null
@@ -52,6 +66,8 @@ object NotificationManager {
         val service = getService() ?: return
         lastQueryTime = System.currentTimeMillis()
         lastCounterValues.clear()
+        sessionUplink = MmkvManager.decodeSettingsLong(AppConfig.PREF_SESSION_UPLINK, 0L)
+        sessionDownlink = MmkvManager.decodeSettingsLong(AppConfig.PREF_SESSION_DOWNLINK, 0L)
         uiTrafficStatsJob = CoroutineScope(Dispatchers.IO).launch {
             var lastZeroSpeed = false
             while (isActive) {
@@ -94,8 +110,14 @@ object NotificationManager {
                 }
                 lastCounterValues.keys.retainAll(seen)
 
-                // The UI receives ready-made deltas and simply accumulates them.
-                MessageHelper.sendMsg2UI(service, AppConfig.MSG_TRAFFIC_STATS, "$upDelta,$downDelta")
+                // Accumulate in the service process and broadcast ABSOLUTE session
+                // totals, so dropped messages while the UI is backgrounded never
+                // lose traffic.
+                sessionUplink += upDelta
+                sessionDownlink += downDelta
+                MmkvManager.encodeSettings(AppConfig.PREF_SESSION_UPLINK, sessionUplink)
+                MmkvManager.encodeSettings(AppConfig.PREF_SESSION_DOWNLINK, sessionDownlink)
+                MessageHelper.sendMsg2UI(service, AppConfig.MSG_TRAFFIC_STATS, "$sessionUplink,$sessionDownlink")
 
                 if (MmkvManager.decodeSettingsBool(AppConfig.PREF_SPEED_ENABLED, true)) {
                     val proxyTotal = proxyUp + proxyDown
@@ -122,12 +144,27 @@ object NotificationManager {
     }
 
     /**
-     * Stops the UI traffic stats broadcast.
+     * Stops the UI traffic stats broadcast and ends the traffic session.
      */
     fun stopUiTrafficStatsBroadcast() {
         uiTrafficStatsJob?.cancel()
         uiTrafficStatsJob = null
         lastCounterValues.clear()
+        sessionUplink = 0L
+        sessionDownlink = 0L
+        MmkvManager.encodeSettings(AppConfig.PREF_SESSION_UPLINK, 0L)
+        MmkvManager.encodeSettings(AppConfig.PREF_SESSION_DOWNLINK, 0L)
+    }
+
+    /**
+     * Pushes the current absolute session totals to the UI. Used when a UI
+     * process (re)attaches so it immediately mirrors the service numbers.
+     */
+    fun pushSessionTotalsToUi(service: Service) {
+        MessageHelper.sendMsg2UI(
+            service, AppConfig.MSG_TRAFFIC_STATS,
+            "$sessionUplink,$sessionDownlink"
+        )
     }
 
     /**

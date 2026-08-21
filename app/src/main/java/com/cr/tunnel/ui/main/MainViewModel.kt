@@ -50,8 +50,9 @@ class MainViewModel(
 
     private var trafficPollJob: Job? = null
     private var lastTrafficQueryTime = 0L
-    private var totalTrafficUplink = 0L
-    private var totalTrafficDownlink = 0L
+    private var prevTrafficUplink = 0L
+    private var prevTrafficDownlink = 0L
+    private var hasPrevTraffic = false
 
     private var autoOptimizePending = false
     private var autoConnectBestServers = false
@@ -155,19 +156,21 @@ init {
 
             is MainServiceEvent.TrafficStats -> {
                 val now = System.currentTimeMillis()
-                val elapsedSec = ((now - lastTrafficQueryTime).coerceAtLeast(0L)) / 1000.0
+                val elapsedSec = ((now - lastTrafficQueryTime).coerceAtLeast(1L)) / 1000.0
                 lastTrafficQueryTime = now
-                // The service sends ready-made per-second deltas; just accumulate them.
-                totalTrafficUplink += event.uplink.coerceAtLeast(0L)
-                totalTrafficDownlink += event.downlink.coerceAtLeast(0L)
-                val upSpeed = if (elapsedSec > 0) (event.uplink / elapsedSec).toLong() else event.uplink
-                val downSpeed = if (elapsedSec > 0) (event.downlink / elapsedSec).toLong() else event.downlink
+                // The service sends absolute session totals; mirror them and derive
+                // speed from the difference between consecutive updates.
+                val upDelta = if (hasPrevTraffic) (event.uplink - prevTrafficUplink).takeIf { it > 0 } ?: 0L else 0L
+                val downDelta = if (hasPrevTraffic) (event.downlink - prevTrafficDownlink).takeIf { it > 0 } ?: 0L else 0L
+                prevTrafficUplink = event.uplink
+                prevTrafficDownlink = event.downlink
+                hasPrevTraffic = true
                 _uiState.update { state ->
                     state.copy(
-                        uplinkSpeed = formatSpeed(upSpeed),
-                        downlinkSpeed = formatSpeed(downSpeed),
-                        totalUplink = formatBytes(totalTrafficUplink),
-                        totalDownlink = formatBytes(totalTrafficDownlink)
+                        uplinkSpeed = formatSpeed((upDelta / elapsedSec).toLong()),
+                        downlinkSpeed = formatSpeed((downDelta / elapsedSec).toLong()),
+                        totalUplink = formatBytes(event.uplink),
+                        totalDownlink = formatBytes(event.downlink)
                     )
                 }
             }
@@ -841,8 +844,9 @@ init {
             )
         }
         if (running) {
-            totalTrafficUplink = 0L
-            totalTrafficDownlink = 0L
+            prevTrafficUplink = 0L
+            prevTrafficDownlink = 0L
+            hasPrevTraffic = false
             lastTrafficQueryTime = System.currentTimeMillis()
         }
     }
