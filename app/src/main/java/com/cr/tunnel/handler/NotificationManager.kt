@@ -35,7 +35,6 @@ object NotificationManager {
     private const val NOTIFICATION_ICON_THRESHOLD = 3000L
 
     private var lastQueryTime = 0L
-    private val lastCounterValues = HashMap<String, Long>()
 
     /**
      * Authoritative session totals, accumulated inside the always-alive service
@@ -65,7 +64,6 @@ object NotificationManager {
         if (uiTrafficStatsJob != null) return
         val service = getService() ?: return
         lastQueryTime = System.currentTimeMillis()
-        lastCounterValues.clear()
         sessionUplink = MmkvManager.decodeSettingsLong(AppConfig.PREF_SESSION_UPLINK, 0L)
         sessionDownlink = MmkvManager.decodeSettingsLong(AppConfig.PREF_SESSION_DOWNLINK, 0L)
         uiTrafficStatsJob = CoroutineScope(Dispatchers.IO).launch {
@@ -82,33 +80,30 @@ object NotificationManager {
                 var proxyDown = 0L
                 var directUp = 0L
                 var directDown = 0L
-                val seen = HashSet<String>()
 
+                // Every reading from the core CONSUMES its counters (Go side does
+                // counter.Set(0)), so each returned value is already the exact
+                // amount accumulated since the previous poll. Sum it directly.
                 CoreServiceManager.queryAllOutboundTrafficStats().forEach { stat ->
                     if (stat.tag == AppConfig.TAG_BLOCKED) return@forEach
-                    val key = "${stat.tag}|${stat.direction}"
-                    seen.add(key)
-                    val last = lastCounterValues[key]
-                    val delta = if (last == null || stat.value < last) stat.value else stat.value - last
-                    lastCounterValues[key] = stat.value
+                    val value = stat.value
 
                     when (stat.direction) {
-                        AppConfig.UPLINK -> upDelta += delta
-                        AppConfig.DOWNLINK -> downDelta += delta
+                        AppConfig.UPLINK -> upDelta += value
+                        AppConfig.DOWNLINK -> downDelta += value
                     }
                     when {
                         stat.tag == AppConfig.TAG_DIRECT -> when (stat.direction) {
-                            AppConfig.UPLINK -> directUp += delta
-                            AppConfig.DOWNLINK -> directDown += delta
+                            AppConfig.UPLINK -> directUp += value
+                            AppConfig.DOWNLINK -> directDown += value
                         }
 
                         else -> when (stat.direction) {
-                            AppConfig.UPLINK -> proxyUp += delta
-                            AppConfig.DOWNLINK -> proxyDown += delta
+                            AppConfig.UPLINK -> proxyUp += value
+                            AppConfig.DOWNLINK -> proxyDown += value
                         }
                     }
                 }
-                lastCounterValues.keys.retainAll(seen)
 
                 // Accumulate in the service process and broadcast ABSOLUTE session
                 // totals, so dropped messages while the UI is backgrounded never
@@ -149,7 +144,6 @@ object NotificationManager {
     fun stopUiTrafficStatsBroadcast() {
         uiTrafficStatsJob?.cancel()
         uiTrafficStatsJob = null
-        lastCounterValues.clear()
         sessionUplink = 0L
         sessionDownlink = 0L
         MmkvManager.encodeSettings(AppConfig.PREF_SESSION_UPLINK, 0L)
