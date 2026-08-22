@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.cr.tunnel.AppConfig
 import com.cr.tunnel.R
+import com.cr.tunnel.dto.CheckUpdateResult
 import com.cr.tunnel.dto.GroupMapItem
 import com.cr.tunnel.dto.LocateTarget
 import com.cr.tunnel.dto.TestServiceMessage
@@ -15,6 +16,8 @@ import com.cr.tunnel.dto.entities.SubscriptionCache
 import com.cr.tunnel.extension.isComplexType
 import com.cr.tunnel.extension.matchesPattern
 import com.cr.tunnel.extension.moveItem
+import com.cr.tunnel.handler.MmkvManager
+import com.cr.tunnel.handler.UpdateCheckerManager
 import com.cr.tunnel.ui.base.BaseViewModel
 import com.cr.tunnel.util.LogUtil
 import kotlinx.coroutines.CancellationException
@@ -59,6 +62,9 @@ class MainViewModel(
     private val _autoConnectRequest = MutableStateFlow(0L)
     val autoConnectRequest: StateFlow<Long> = _autoConnectRequest.asStateFlow()
 
+    private val _updatePrompt = MutableStateFlow<CheckUpdateResult?>(null)
+    val updatePrompt: StateFlow<CheckUpdateResult?> = _updatePrompt.asStateFlow()
+
     // ---------- UI state ----------
     private val _uiState = MutableStateFlow(
         MainUiState(
@@ -97,6 +103,25 @@ class MainViewModel(
 init {
         collectServiceEvents()
         setupGroupTab()
+        autoCheckForUpdate()
+    }
+
+    private fun autoCheckForUpdate() {
+        viewModelScope.launch(ioDispatcher) {
+            runCatching {
+                val includePreRelease =
+                    MmkvManager.decodeSettingsBool(AppConfig.PREF_CHECK_UPDATE_PRE_RELEASE, false)
+                UpdateCheckerManager.checkForUpdate(includePreRelease)
+            }.onSuccess { result ->
+                if (result.hasUpdate) _updatePrompt.value = result
+            }.onFailure {
+                LogUtil.e(AppConfig.TAG, "Auto update check failed: ${it.message}")
+            }
+        }
+    }
+
+    fun dismissUpdatePrompt() {
+        _updatePrompt.value = null
     }
 
     private fun collectServiceEvents() {

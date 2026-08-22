@@ -31,11 +31,13 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,8 +54,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cr.tunnel.R
@@ -64,6 +69,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import com.cr.tunnel.util.Utils
 
 @Composable
 fun MainScreen(
@@ -83,6 +89,8 @@ fun MainScreen(
 
     val isDarkTheme = LocalDarkTheme.current
     val scope = rememberCoroutineScope()
+    val updatePrompt by mainViewModel.updatePrompt.collectAsStateWithLifecycle()
+
     var showSearch by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedTab by remember { mutableStateOf(MainTab.Home) }
@@ -216,6 +224,29 @@ fun MainScreen(
         QRCodeDialog(bitmap = shareQRCodeBitmap, onDismiss = { onAction(MainAction.DismissQRCodeDialog) })
     }
 
+    updatePrompt?.let { result ->
+        val context = LocalContext.current
+        AlertDialog(
+            onDismissRequest = { mainViewModel.dismissUpdatePrompt() },
+            title = { Text(stringResource(R.string.update_new_version_found, result.latestVersion ?: "")) },
+            text = { Text(result.releaseNotes.orEmpty()) },
+            confirmButton = {
+                TextButton(onClick = {
+                    mainViewModel.dismissUpdatePrompt()
+                    result.downloadUrl?.let { Utils.openUri(context, it) }
+                }) {
+                    Text(stringResource(R.string.update_now))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mainViewModel.dismissUpdatePrompt() }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    }
+
     Scaffold(
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets,
         topBar = {
@@ -264,11 +295,15 @@ fun MainScreen(
         },
         floatingActionButton = {},
     ) { innerPadding ->
+        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         AnimatedContent(
             targetState = selectedTab,
             transitionSpec = {
                 val forward = targetState.ordinal > initialState.ordinal
-                if (forward) {
+                // Mirror the slide direction in RTL locales so pages always
+                // move toward the reading side of the user.
+                val enterFromEnd = if (isRtl) !forward else forward
+                if (enterFromEnd) {
                     (slideInHorizontally(tween(280, easing = FastOutSlowInEasing)) { it / 4 } +
                         fadeIn(tween(280))) togetherWith
                         (slideOutHorizontally(tween(280, easing = FastOutSlowInEasing)) { -it / 4 } +
