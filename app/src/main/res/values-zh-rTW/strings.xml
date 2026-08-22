@@ -580,4 +580,27 @@
     <string name="auto_connect_label">自動連線</string>
     <string name="connection_quality_excellent">極佳連線</string>
     <string name="connected_status">已連線</string>
+    <string name="connection_connecting">連線中…</string>
+
+    <string name="community_title">社群設定檔</string>
+    <string name="community_refresh">重新整理</string>
+    <string name="community_share_config">分享設定檔</string>
+    <string name="community_q_volume">設定檔的流量是多少？</string>
+    <string name="community_q_duration">設定檔的有效期限是多久？</string>
+    <string name="community_q_users">供多少使用者使用？</string>
+    <string name="community_paste_link">貼上您的設定檔連結</string>
+    <string name="community_next">下一步</string>
+    <string name="community_publish">發布</string>
+    <string name="community_empty">尚無共用設定檔。快來分享第一個吧！</string>
+    <string name="community_copy">複製</string>
+    <string name="community_copied">已複製設定檔連結</string>
+    <string name="community_ping">測延遲</string>
+    <string name="community_label_volume">流量</string>
+    <string name="community_label_duration">期限</string>
+    <string name="community_label_users">使用者</string>
+    <string name="community_load_failed">載入社群設定檔失敗</string>
+    <string name="community_sharing_unavailable">分享功能尚未開放</string>
+    <string name="community_invalid_link">無效的設定檔連結</string>
+    <string name="community_share_success">設定檔發布成功</string>
+    <string name="community_share_failed">發布設定檔失敗</string>
 </resources>

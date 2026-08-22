@@ -580,4 +580,27 @@
     <string name="auto_connect_label">অটো কানেক্ট</string>
     <string name="connection_quality_excellent">চমৎকার সংযোগ</string>
     <string name="connected_status">সংযুক্ত</string>
+    <string name="connection_connecting">সংযোগ হচ্ছে…</string>
+
+    <string name="community_title">কমিউনিটি কনফিগ</string>
+    <string name="community_refresh">রিফ্রেশ</string>
+    <string name="community_share_config">একটি কনফিগ শেয়ার করুন</string>
+    <string name="community_q_volume">কনফিগের ভলিউম কত?</string>
+    <string name="community_q_duration">কনফিগটি কতদিন বৈধ?</string>
+    <string name="community_q_users">কতজন ব্যবহারকারীর জন্য?</string>
+    <string name="community_paste_link">আপনার কনফিগ লিংক পেস্ট করুন</string>
+    <string name="community_next">পরবর্তী</string>
+    <string name="community_publish">প্রকাশ</string>
+    <string name="community_empty">এখনো কোনো শেয়ার করা কনফিগ নেই। প্রথম শেয়ার করুন!</string>
+    <string name="community_copy">কপি</string>
+    <string name="community_copied">কনফিগ লিংক কপি হয়েছে</string>
+    <string name="community_ping">পিং</string>
+    <string name="community_label_volume">ভলিউম</string>
+    <string name="community_label_duration">সময়</string>
+    <string name="community_label_users">ব্যবহারকারী</string>
+    <string name="community_load_failed">কমিউনিটি কনফিগ লোড করতে ব্যর্থ</string>
+    <string name="community_sharing_unavailable">শেয়ারিং এখনও উপলব্ধ নয়</string>
+    <string name="community_invalid_link">অবৈধ কনফিগ লিংক</string>
+    <string name="community_share_success">কনফিগ সফলভাবে প্রকাশিত হয়েছে</string>
+    <string name="community_share_failed">কনফিগ প্রকাশ করতে ব্যর্থ</string>
 </resources>

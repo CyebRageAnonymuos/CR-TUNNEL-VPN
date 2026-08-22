@@ -580,4 +580,27 @@
     <string name="auto_connect_label">اتصال خودکار</string>
     <string name="connection_quality_excellent">اتصال عالی</string>
     <string name="connected_status">متصل</string>
+    <string name="connection_connecting">در حال اتصال…</string>
+
+    <string name="community_title">کانفیگهای اشتراکی</string>
+    <string name="community_refresh">بروزرسانی</string>
+    <string name="community_share_config">اشتراکگذاری کانفیگ</string>
+    <string name="community_q_volume">حجم کانفیگ چقدر است؟</string>
+    <string name="community_q_duration">اعتبار کانفیگ چقدر است؟</string>
+    <string name="community_q_users">برای چند کاربر است؟</string>
+    <string name="community_paste_link">لینک کانفیگ خود را قرار دهید</string>
+    <string name="community_next">بعدی</string>
+    <string name="community_publish">انتشار</string>
+    <string name="community_empty">هنوز کانفیگی به اشتراک گذاشته نشده. اولین نفر باشید!</string>
+    <string name="community_copy">کپی</string>
+    <string name="community_copied">لینک کانفیگ کپی شد</string>
+    <string name="community_ping">پینگ</string>
+    <string name="community_label_volume">حجم</string>
+    <string name="community_label_duration">زمان</string>
+    <string name="community_label_users">کاربران</string>
+    <string name="community_load_failed">بارگذاری کانفیگهای اشتراکی ناموفق بود</string>
+    <string name="community_sharing_unavailable">اشتراکگذاری هنوز در دسترس نیست</string>
+    <string name="community_invalid_link">لینک کانفیگ نامعتبر است</string>
+    <string name="community_share_success">کانفیگ با موفقیت منتشر شد</string>
+    <string name="community_share_failed">انتشار کانفیگ ناموفق بود</string>
 </resources>

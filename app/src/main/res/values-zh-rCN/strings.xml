@@ -580,4 +580,27 @@
     <string name="auto_connect_label">自动连接</string>
     <string name="connection_quality_excellent">极佳连接</string>
     <string name="connected_status">已连接</string>
+    <string name="connection_connecting">正在连接…</string>
+
+    <string name="community_title">社区配置</string>
+    <string name="community_refresh">刷新</string>
+    <string name="community_share_config">分享配置</string>
+    <string name="community_q_volume">配置的流量是多少？</string>
+    <string name="community_q_duration">配置有效期是多久？</string>
+    <string name="community_q_users">供多少用户使用？</string>
+    <string name="community_paste_link">粘贴您的配置链接</string>
+    <string name="community_next">下一步</string>
+    <string name="community_publish">发布</string>
+    <string name="community_empty">暂无共享配置。来分享第一个吧！</string>
+    <string name="community_copy">复制</string>
+    <string name="community_copied">已复制配置链接</string>
+    <string name="community_ping">延迟测试</string>
+    <string name="community_label_volume">流量</string>
+    <string name="community_label_duration">有效期</string>
+    <string name="community_label_users">用户数</string>
+    <string name="community_load_failed">加载社区配置失败</string>
+    <string name="community_sharing_unavailable">分享功能尚未开放</string>
+    <string name="community_invalid_link">无效的配置链接</string>
+    <string name="community_share_success">配置发布成功</string>
+    <string name="community_share_failed">发布配置失败</string>
 </resources>

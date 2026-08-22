@@ -30,47 +30,47 @@ fun AnimatedHomeBackground(isDarkTheme: Boolean) {
         initialValue = -0.5f,
         targetValue = 1.4f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 16000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            animation = tween(durationMillis = 26000, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
         ),
         label = "sweep"
     )
 
     val orb1X = transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(11000, easing = LinearEasing)),
+        initialValue = 0.15f, targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(tween(24000, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb1X"
     )
     val orb1Y = transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(17000, easing = LinearEasing)),
+        initialValue = 0.15f, targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(tween(31000, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb1Y"
     )
     val orb1A = transition.animateFloat(
-        initialValue = 0.45f, targetValue = 0.9f,
-        animationSpec = infiniteRepeatable(tween(6000, easing = LinearEasing), RepeatMode.Reverse),
+        initialValue = 0.5f, targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(tween(11000, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb1A"
     )
 
     val orb2X = transition.animateFloat(
-        initialValue = 1f, targetValue = 0f,
-        animationSpec = infiniteRepeatable(tween(15000, easing = LinearEasing)),
+        initialValue = 0.85f, targetValue = 0.15f,
+        animationSpec = infiniteRepeatable(tween(28000, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb2X"
     )
     val orb2Y = transition.animateFloat(
-        initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(21000, easing = LinearEasing)),
+        initialValue = 0.15f, targetValue = 0.85f,
+        animationSpec = infiniteRepeatable(tween(36000, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb2Y"
     )
     val orb2A = transition.animateFloat(
-        initialValue = 0.9f, targetValue = 0.4f,
-        animationSpec = infiniteRepeatable(tween(7000, easing = LinearEasing), RepeatMode.Reverse),
+        initialValue = 0.85f, targetValue = 0.45f,
+        animationSpec = infiniteRepeatable(tween(13000, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb2A"
     )
 
     val orb3Pulse = transition.animateFloat(
-        initialValue = 0.65f, targetValue = 1.35f,
-        animationSpec = infiniteRepeatable(tween(4600, easing = LinearEasing), RepeatMode.Reverse),
+        initialValue = 0.78f, targetValue = 1.12f,
+        animationSpec = infiniteRepeatable(tween(8200, easing = LinearEasing), RepeatMode.Reverse),
         label = "orb3Pulse"
     )
 

@@ -389,9 +389,10 @@ private fun HomeTab(
                 OptimizeBanner(onCancel = { onAction(MainAction.CancelAutoOptimize) })
             }
             ConnectionSection(
-            displayText = displayText,
-            isRunning = uiState.isRunning,
-            isAutoOptimizing = uiState.isAutoOptimizing,
+                displayText = displayText,
+                isRunning = uiState.isRunning,
+                isConnecting = uiState.isConnecting,
+                isAutoOptimizing = uiState.isAutoOptimizing,
             isDarkTheme = isDarkTheme,
             connectedAtMs = uiState.connectedAtMs,
             uplinkSpeed = uiState.uplinkSpeed,

@@ -580,4 +580,27 @@
     <string name="auto_connect_label">Tự động kết nối</string>
     <string name="connection_quality_excellent">Kết nối tuyệt vời</string>
     <string name="connected_status">ĐÃ KẾT NỐI</string>
+    <string name="connection_connecting">Đang kết nối…</string>
+
+    <string name="community_title">Cấu hình cộng đồng</string>
+    <string name="community_refresh">Làm mới</string>
+    <string name="community_share_config">Chia sẻ cấu hình</string>
+    <string name="community_q_volume">Dung lượng của cấu hình là bao nhiêu?</string>
+    <string name="community_q_duration">Cấu hình có hiệu lực trong bao lâu?</string>
+    <string name="community_q_users">Dành cho bao nhiêu người dùng?</string>
+    <string name="community_paste_link">Dán liên kết cấu hình của bạn</string>
+    <string name="community_next">Tiếp theo</string>
+    <string name="community_publish">Xuất bản</string>
+    <string name="community_empty">Chưa có cấu hình nào được chia sẻ. Hãy là người đầu tiên!</string>
+    <string name="community_copy">Sao chép</string>
+    <string name="community_copied">Đã sao chép liên kết cấu hình</string>
+    <string name="community_ping">Ping</string>
+    <string name="community_label_volume">Dung lượng</string>
+    <string name="community_label_duration">Thời hạn</string>
+    <string name="community_label_users">Người dùng</string>
+    <string name="community_load_failed">Không thể tải cấu hình cộng đồng</string>
+    <string name="community_sharing_unavailable">Tính năng chia sẻ chưa khả dụng</string>
+    <string name="community_invalid_link">Liên kết cấu hình không hợp lệ</string>
+    <string name="community_share_success">Đã xuất bản cấu hình thành công</string>
+    <string name="community_share_failed">Không thể xuất bản cấu hình</string>
 </resources>

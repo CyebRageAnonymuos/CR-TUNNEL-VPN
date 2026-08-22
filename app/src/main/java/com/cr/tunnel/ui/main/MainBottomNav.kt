@@ -247,6 +247,7 @@ fun SettingsPage(
         MainDestination.Routing,
         MainDestination.UserAssets,
         MainDestination.Settings,
+        MainDestination.Community,
         MainDestination.Promotion,
         MainDestination.Logcat,
         MainDestination.CheckUpdate,

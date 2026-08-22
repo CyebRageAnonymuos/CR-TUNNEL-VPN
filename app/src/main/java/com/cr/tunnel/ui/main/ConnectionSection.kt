@@ -63,6 +63,7 @@ private val NeonPurple = Color(0xFFA855F7)
 fun ConnectionSection(
     displayText: String,
     isRunning: Boolean,
+    isConnecting: Boolean,
     isAutoOptimizing: Boolean,
     isDarkTheme: Boolean,
     connectedAtMs: Long?,
@@ -106,6 +107,7 @@ fun ConnectionSection(
 
         ConnectionCircle(
             isRunning = isRunning,
+            isConnecting = isConnecting,
             isDarkTheme = isDarkTheme,
             elapsedSeconds = elapsedSeconds,
             onClick = onToggle
@@ -267,15 +269,20 @@ private fun ConnectionStatsBar(
 @Composable
 private fun ConnectionCircle(
     isRunning: Boolean,
+    isConnecting: Boolean,
     isDarkTheme: Boolean,
     elapsedSeconds: Long,
     onClick: () -> Unit
 ) {
-    val glowColor = if (isRunning) colorPing else NeonCyan
-    val ringColors = if (isRunning) {
-        listOf(colorPing, NeonCyan, colorPing)
-    } else {
-        listOf(NeonCyan, NeonPurple, NeonCyan)
+    val glowColor = when {
+        isRunning -> colorPing
+        isConnecting -> Color(0xFFFFC107)
+        else -> NeonCyan
+    }
+    val ringColors = when {
+        isRunning -> listOf(colorPing, NeonCyan, colorPing)
+        isConnecting -> listOf(Color(0xFFFFC107), NeonPurple, Color(0xFFFFC107))
+        else -> listOf(NeonCyan, NeonPurple, NeonCyan)
     }
 
     val transition = rememberInfiniteTransition(label = "connectionCircle")
@@ -305,6 +312,7 @@ private fun ConnectionCircle(
     Box(
         modifier = Modifier
             .size(190.dp)
+            .clip(CircleShape)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {

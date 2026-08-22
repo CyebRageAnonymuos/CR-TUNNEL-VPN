@@ -580,4 +580,27 @@
     <string name="auto_connect_label">اتصال تلقائي</string>
     <string name="connection_quality_excellent">اتصال ممتاز</string>
     <string name="connected_status">متصل</string>
+    <string name="connection_connecting">جارٍ الاتصال…</string>
+
+    <string name="community_title">إعدادات المجتمع</string>
+    <string name="community_refresh">تحديث</string>
+    <string name="community_share_config">مشاركة إعداد</string>
+    <string name="community_q_volume">ما هو حجم الإعداد؟</string>
+    <string name="community_q_duration">ما مدة صلاحية الإعداد؟</string>
+    <string name="community_q_users">لكم من المستخدمين؟</string>
+    <string name="community_paste_link">الصق رابط الإعداد الخاص بك</string>
+    <string name="community_next">التالي</string>
+    <string name="community_publish">نشر</string>
+    <string name="community_empty">لا توجد إعدادات مشتركة بعد. كن أول من يشارك!</string>
+    <string name="community_copy">نسخ</string>
+    <string name="community_copied">تم نسخ رابط الإعداد</string>
+    <string name="community_ping">بينغ</string>
+    <string name="community_label_volume">الحجم</string>
+    <string name="community_label_duration">المدة</string>
+    <string name="community_label_users">المستخدمون</string>
+    <string name="community_load_failed">فشل تحميل إعدادات المجتمع</string>
+    <string name="community_sharing_unavailable">المشاركة غير متاحة بعد</string>
+    <string name="community_invalid_link">رابط الإعداد غير صالح</string>
+    <string name="community_share_success">تم نشر الإعداد بنجاح</string>
+    <string name="community_share_failed">فشل نشر الإعداد</string>
 </resources>

@@ -859,10 +859,21 @@ init {
     }
 
     // ---------- Running state ----------
+    fun markConnecting() {
+        if (_uiState.value.isRunning || _uiState.value.isConnecting) return
+        _uiState.update {
+            it.copy(
+                isConnecting = true,
+                statusText = dataSource.getString(R.string.connection_connecting)
+            )
+        }
+    }
+
     private fun updateRunningState(running: Boolean, clearTestingText: Boolean = true) {
         _uiState.update { state ->
             state.copy(
                 isRunning = running,
+                isConnecting = false,
                 connectedAtMs = if (running) System.currentTimeMillis() else null,
                 statusText = if (!clearTestingText && state.isTesting) state.statusText
                 else if (running) connectedText else disconnectedText
